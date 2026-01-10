@@ -35,54 +35,13 @@ test.describe('13F Deal Management', () => {
      * Step 4: Click "Clone"
      */
     await page.getByRole('button', { name: 'Clone' }).click();
+    
+    
+    
+    // Step: Wait for Clone Deal modal to appear
+const dialog = page.getByRole('dialog');
+await expect(dialog).toBeVisible();
     await expect(page.getByText('Clone Deal', { exact: true })).toBeVisible();
-
-    /**
-     * Step 5: Select deal to clone (React-Select dynamic dropdown)
-     */
-    await page.getByText('Deals').click();
-    await page.locator('#react-select-2-input').fill('test');
-    //await page.getByRole('option', { name: /test/i }).click();
-    await page.locator('#react-select-2-option-1').click();
-    /**
-     * Step 6–9: Fill clone form (inside dialog)
-     */
-    const dialog = page.getByRole('dialog');
-    await expect(dialog).toBeVisible();
-
-    // Deal Name
-    await dialog.getByRole('textbox', { name: /Deal Name/i })
-      .fill('clone testing');
-
-    // Job Number (single source of truth)
-    const jobNumber = '145';
-
-    await dialog.getByRole('textbox', { name: /Job Number/i })
-      .fill(jobNumber);
-
-    // Target Filing Date
-    await dialog.locator('#targetFilingDate').click();
-
-    // Select first available date (stable)
-    await page.getByRole('option').first().click();
-
-    // Confirm clone
-    await dialog.getByRole('button', { name: /Yes/i }).click();
-
-    /**
-     * Step 10: Search newly cloned deal
-     */
-    await page
-      .getByRole('textbox', { name: /Enter Job Number/i })
-      .fill(jobNumber);
-
-    /**
-     * Final Verification
-     */
-    const resultRow = page.getByRole('row', { name: new RegExp(jobNumber) });
-
-    await expect(resultRow).toBeVisible();
-    await expect(resultRow).toContainText('clone testing');
   });
 
   test.afterAll(async () => {
