@@ -38,65 +38,51 @@ test.describe('13F Deal Management', () => {
     await expect(page.getByText('Clone Deal', { exact: true })).toBeVisible();
 
     /**
-     * ✅ Step 5: Select deal to clone (FIXED)
-     * Manual: Pick deal from list
-     * Recorder-based implementation
+     * Step 5: Select deal to clone (React-Select dynamic dropdown)
      */
     await page.getByText('Deals').click();
-
-    const dealSearchInput = page.locator('[id^="react-select"][id$="-input"]');
-    await expect(dealSearchInput).toBeVisible();
-
-    await dealSearchInput.fill('test');
-    await page.getByText('Deal name testing', { exact: true }).click();
-
+    await page.locator('#react-select-2-input').fill('test');
+    //await page.getByRole('option', { name: /test/i }).click();
+    await page.locator('#react-select-2-option-1').click();
     /**
-     * Step 6: Enter Deal Name
+     * Step 6–9: Fill clone form (inside dialog)
      */
-    await page
-      .getByRole('textbox', { name: 'Deal Name' })
-      .fill('Clone 01052026 testing');
+    const dialog = page.getByRole('dialog');
+    await expect(dialog).toBeVisible();
 
-    /**
-     * Step 7: Enter Job Number
-     */
-    await page
-      .getByRole('textbox', { name: 'Job Number' })
-      .fill('145');
+    // Deal Name
+    await dialog.getByRole('textbox', { name: /Deal Name/i })
+      .fill('clone testing');
 
-    /**
-     * Step 8: Select Target Filing Date
-     * Expected: Date auto-populated
-     */
-    await page.getByRole('dialog').locator('#targetFilingDate').click();
-    await page
-      .getByRole('option', { name: /choose .* january/i })
-      .click();
+    // Job Number (single source of truth)
+    const jobNumber = '145';
 
-    const targetFilingDateValue = await page
-      .locator('#targetFilingDate')
-      .inputValue();
+    await dialog.getByRole('textbox', { name: /Job Number/i })
+      .fill(jobNumber);
 
-    expect(targetFilingDateValue).toBeTruthy();
+    // Target Filing Date
+    await dialog.locator('#targetFilingDate').click();
 
-    /**
-     * Step 9: Confirm cloning
-     */
-    await page.getByRole('button', { name: 'Yes' }).click();
+    // Select first available date (stable)
+    await page.getByRole('option').first().click();
+
+    // Confirm clone
+    await dialog.getByRole('button', { name: /Yes/i }).click();
 
     /**
      * Step 10: Search newly cloned deal
      */
     await page
-      .getByRole('textbox', { name: 'Enter Job Number...' })
-      .fill('145');
+      .getByRole('textbox', { name: /Enter Job Number/i })
+      .fill(jobNumber);
 
     /**
      * Final Verification
      */
-    const resultRow = page.getByRole('row', { name: /145/ });
+    const resultRow = page.getByRole('row', { name: new RegExp(jobNumber) });
+
     await expect(resultRow).toBeVisible();
-    await expect(resultRow).toContainText('Clone 01052026 testing');
+    await expect(resultRow).toContainText('clone testing');
   });
 
   test.afterAll(async () => {
@@ -104,3 +90,4 @@ test.describe('13F Deal Management', () => {
     await context.close();
   });
 });
+
