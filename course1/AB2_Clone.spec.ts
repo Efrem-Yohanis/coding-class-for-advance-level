@@ -42,6 +42,36 @@ test.describe('13F Deal Management', () => {
 const dialog = page.getByRole('dialog');
 await expect(dialog).toBeVisible();
     await expect(page.getByText('Clone Deal', { exact: true })).toBeVisible();
+
+    /**
+ * 1️⃣ Select deal to clone (React-Select inside modal)
+ */
+await dialog.locator('#react-select-2-input').fill('test');
+// Wait for options to appear and click the first match
+await dialog.locator('#react-select-2-option-1').click();
+
+/**
+ * 2️⃣ Fill Deal Name
+ */
+await dialog.getByPlaceholder('Deal Name').fill('clone testing');
+
+/**
+ * 3️⃣ Fill Job Number
+ */
+const jobNumber = '145';
+await dialog.getByPlaceholder('Job Number').fill(jobNumber);
+
+/**
+ * 4️⃣ Pick Target Filing Date
+ */
+await dialog.locator('#targetFilingDate').click();
+// Pick first available date (stable)
+await page.getByRole('option').first().click();
+
+/**
+ * 5️⃣ Confirm the clone
+ */
+await dialog.getByRole('button', { name: /Yes/i }).click();
   });
 
   test.afterAll(async () => {
