@@ -101,25 +101,33 @@ test('Verify ABSEE Deal Creation and File Upload', async ({ page }) => {
 
 });
 ========================================
-  Running 1 test using 1 worker
+  unning 1 test using 1 worker
 [chromium] › tests\ABSEEDealCreationandFileUpload.spec.ts:3:5 › Verify ABSEE Deal Creation and File Upload
 Action Required: Approve the notification on your mobile device...
   1) [chromium] › tests\ABSEEDealCreationandFileUpload.spec.ts:3:5 › Verify ABSEE Deal Creation and File Upload 
 
-    Test timeout of 30000ms exceeded.
+    Error: expect(locator).toBeVisible() failed
 
-    Error: page.waitForTimeout: Test timeout of 30000ms exceeded.
+    Locator: getByText('Upload File(s) processing')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
 
-      83 |   // Direct upload to the hidden input (Fixes the Node is not an HTMLInputElement error)
-      84 |   await page.locator('input[type="file"]').setInputFiles(filePath);
-    > 85 |   await page.waitForTimeout(10000);
-         |              ^
-      86 |   // //--------------------------- 6. Verify Execution Status ---------------------------
-      87 |   // // Check Header
-      88 |    await expect(page.getByText('Execution Status')).toBeVisible();
-        at C:\AB2 Playwright Project\tests\ABSEEDealCreationandFileUpload.spec.ts:85:14
+    Call log:
+      - Expect "toBeVisible" with timeout 15000ms
+      - waiting for getByText('Upload File(s) processing')
+
+
+      89 |
+      90 |   // // Wait for "Processing" label
+    > 91 |   await expect(page.getByText('Upload File(s) processing')).toBeVisible({ timeout: 15000 });
+         |                                                             ^
+      92 |
+      93 |   // // Wait for "CompletedSuccessfully" (Long timeout for ZIP processing)
+      94 |   const successLabel = page.getByText(/CompletedSuccessfully/);
+        at C:\AB2 Playwright Project\tests\ABSEEDealCreationandFileUpload.spec.ts:91:61
 
     Error Context: test-results\ABSEEDealCreationandFileUp-aa2c6-al-Creation-and-File-Upload-chromium\error-context.md
 
   1 failed
-    [chromium] › tests\ABSEEDealCreationandFileUpload.spec.ts:3:5 › Verify ABSEE Deal Creation and File Upload
+    [chromium] › tests\ABSEEDealCreationandFileUpload.spec.ts:3:5 › Verify ABSEE Deal Creation and File Upload 
