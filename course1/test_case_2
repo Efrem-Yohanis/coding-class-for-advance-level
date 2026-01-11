@@ -1,5 +1,49 @@
 1. test case name:
-
+Verify user able to clone ABSEE deal
 2. maual test:
+ID	Work Item Type	Title	Test Step	Step Action	Step Expected	Area Path	Assigned To	State
+415058	Test Case	Verify user able to clone ABSEE deal				
+			1	Shared steps 413501: Login into AB2 site				
+			2	Click on ABSEE Deal icon	Verify user navigates to the ABSEE Deal Home landing page			
+			3	Select the Company from the dropdown	Verify user is able to select values from the Company dropdown			
+			4	Click on the Create New Deal button	"Verify Filing Details dropdown opens and contains below fields  and buttons
+Job Number,Deal Name,Period End Date,Target Filing Date,Filing Type,ABS Scheme Type,Create,Clone,Cancel"			
+			5	Click on 'Clone'  button	Verify clone button is enables and user clicks successfully			
+			6	Check clone deal popup appears	"Verify clone deal popup is displayed with below fields
+Deals dropdown,Deal Name input field,Job Number input field"			
+			7	Select the Deals from the dropdown	Verify user selects the deal value from the dropdown			
+			8	Enter the Deal Name and Job Number details	Verify user enters deal name and job number and clicks on Yes button			
+			9	Check the cloned ABSEE deal is available in the list	Verify the cloned deal is available in the home deal table			
+			10	Check clone deal popup closes when user clicks No button	Verify popup closes successfully when No button is clicked			
 
 3. recored script:
+import { test, expect } from '@playwright/test';
+
+test('test', async ({ page }) => {
+  await page.goto('https://13f-qa.azurewebsites.net/');
+  await page.getByRole('button', { name: 'Sign in with DFIN Account' }).click();
+  await page.getByRole('textbox', { name: 'Email address' }).click();
+  await page.getByRole('textbox', { name: 'Email address' }).fill(' xxx');
+  await page.getByRole('button', { name: 'Continue' }).click();
+  await page.getByRole('textbox', { name: 'Enter the password for' }).click();
+  await page.getByRole('textbox', { name: 'Enter the password for' }).press('CapsLock');
+  await page.getByRole('textbox', { name: 'Enter the password for' }).fill('A');
+  await page.getByRole('button', { name: 'Verify' }).click();
+  await page.getByRole('button', { name: 'ABS-EE Deal Home' }).click();
+  await page.getByText('Company', { exact: true }).click();
+   await page.getByRole('button', { name: 'Create New Deal' }).click();
+  await page.getByRole('button', { name: 'Clone' }).click();
+  await page.getByText('Clone Deal', { exact: true }).click();
+  await page.getByText('Deals').click();
+  await page.locator('#react-select-6-option-2').click();
+  await page.getByRole('dialog').getByText('Deal Name').click();
+  await page.getByRole('textbox', { name: 'Deal Name' }).fill('C');
+  await page.getByRole('textbox', { name: 'Deal Name' }).press('CapsLock');
+  await page.getByRole('textbox', { name: 'Deal Name' }).fill('Clone auto testing 111');
+  await page.getByRole('dialog').getByText('Job Number').click();
+  await page.getByRole('textbox', { name: 'Job Number' }).fill('12525');
+    await page.getByRole('button', { name: 'Yes' }).click();
+  await page.getByRole('cell', { name: '12525' }).click();
+  await page.getByText('Clone auto testing').click();
+  
+});
