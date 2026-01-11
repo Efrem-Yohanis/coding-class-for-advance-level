@@ -16,8 +16,7 @@ test.describe('13F Deal - Cover Page', () => {
     /**
      * Step 2 & 3: Go to newly uploaded 13F deal and press 'View'
      */
-    await page.getByRole('row', { name: /some-deal-identifier/ }).getByRole('link', { name: 'View' }).click();
-
+    await page.getByRole('link', { name: 'View' }).click();
     /**
      * Step 4: Access Cover Page
      */
