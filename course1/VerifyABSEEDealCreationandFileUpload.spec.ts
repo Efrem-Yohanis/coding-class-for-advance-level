@@ -137,3 +137,35 @@ test('Verify ABSEE Deal Creation and File Upload', async ({ page }) => {
 
   // 4. Final confirmation string
   await expect(page.getByText(/Finished Upload ABSEE/i)).toBeVisible();
+======================================Running 1 test using 1 worker
+[chromium] › tests\ABSEEDealCreationandFileUpload.spec.ts:3:5 › Verify ABSEE Deal Creation and File Upload
+Action Required: Approve the notification on your mobile device...
+Checking for processing status...
+Processing status skipped or too fast, checking for completion...
+  1) [chromium] › tests\ABSEEDealCreationandFileUpload.spec.ts:3:5 › Verify ABSEE Deal Creation and File Upload 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByText(/CompletedSuccessfully/i)
+    Expected: visible
+    Timeout: 60000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 60000ms
+      - waiting for getByText(/CompletedSuccessfully/i)
+
+
+      104 |   const successLabel = page.getByText(/CompletedSuccessfully/i);
+      105 |
+    > 106 |   await expect(successLabel).toBeVisible({ timeout: 60000 });
+          |                              ^
+      107 |
+      108 |   // 4. Final confirmation string
+      109 |   await expect(page.getByText(/Finished Upload ABSEE/i)).toBeVisible();
+        at C:\AB2 Playwright Project\tests\ABSEEDealCreationandFileUpload.spec.ts:106:30
+
+    Error Context: test-results\ABSEEDealCreationandFileUp-aa2c6-al-Creation-and-File-Upload-chromium\error-context.md
+
+  1 failed
+    [chromium] › tests\ABSEEDealCreationandFileUpload.spec.ts:3:5 › Verify ABSEE Deal Creation and File Upload
