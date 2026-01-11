@@ -1,1 +1,77 @@
+Test case name
+Test Case 415041: Verify that able to create a submission proof for newly uploaded ABSEE deal
 
+
+Manual Test case
+415041	Test Case	Verify that able to create a submission proof for newly uploaded ABSEE deal				ArcSuite\AB2-13F	Manasa Gedela <manasa.gedela@dfinsolutions.com>	Design
+			1	Shared steps 413501: Login into AB2 site				
+			2	Go to newly created and uploaded ABSEE deal	Verify the new deal is available with details and View and Delete button are also available			
+			3	Click on Create button under Submission Proof	Verify a popup "Do you want to include the contents of the Ex-102 file in the submission proof?" is displayed			
+			4	Click "No" if client doesn't want to include EX-102 file	Verif y the 'Execution Status' tab should display a message that says 'Submission Proof completed,CompletedSuccessfully : Finished Submission proof'			
+			5	Click "Yes" if client want to include EX-102 file	Verif y the 'Execution Status' tab should display a message that says 'Submission Proof completed,CompletedSuccessfully : Finished Submission proof'	
+
+Record
+
+
+import { test, expect } from '@playwright/test';
+
+test('test', async ({ page }) => {
+  await page.goto('https://13f-qa.azurewebsites.net/');
+  await page.getByRole('button', { name: 'Sign in with DFIN Account' }).click();
+  await page.getByRole('textbox', { name: 'Email address' }).fill(' xxx');
+  await page.getByRole('button', { name: 'Continue' }).click();
+  await page.locator('#i0118').press('CapsLock');
+  await page.getByRole('textbox', { name: 'Enter the password for' }).fill('A');
+  await page.getByRole('textbox', { name: 'Enter the password for' }).press('CapsLock');
+  await page.getByRole('textbox', { name: 'Enter the password for' }).fill('xxx');
+  await page.getByText('Enter password Forgot my').click();
+  await page.getByRole('button', { name: 'Sign in' }).click();
+  await page.goto('https://13f-qa.azurewebsites.net/deals');
+  await page.getByRole('button', { name: 'ABS-EE Deal Home' }).click();
+  await page.getByRole('heading', { name: 'ABS-EE Deal Home' }).click();
+  await page.getByRole('button', { name: 'Create New Deal' }).click();
+  await page.getByRole('textbox', { name: 'Job Number' }).click();
+  await page.locator('div').filter({ hasText: /^Job Number$/ }).click();
+  await page.getByRole('textbox', { name: 'Job Number' }).click();
+  await page.getByText('Filings Details').click();
+  await page.locator('form').getByText('Job Number').click();
+  await page.getByRole('textbox', { name: 'Job Number' }).click();
+  await page.getByRole('textbox', { name: 'Job Number' }).fill('99');
+  await page.getByText('Deal Name*').click();
+  await page.getByRole('textbox', { name: 'Deal Name*' }).click();
+  await page.getByRole('textbox', { name: 'Deal Name*' }).fill('submission proof to be deleted');
+  await page.getByText('Period End Date*').click();
+  await page.getByRole('textbox', { name: 'Period End Date*' }).click();
+  await page.getByRole('textbox', { name: 'Period End Date*' }).fill('09-30-2024');
+  await page.getByText('Target Filing Date*').click();
+  await page.getByRole('textbox', { name: 'Target Filing Date*' }).click();
+  await page.getByRole('option', { name: 'Choose Sunday, January 11th,' }).click();
+  await page.getByText('Filing Type*').click();
+  await page.getByText('ABS Schema Type*').click();
+  await page.getByLabel('ABS Schema Type*').selectOption('2');
+  await page.getByRole('button', { name: 'Create', exact: true }).click();
+  await page.getByText('01-11-').nth(3).click();
+  await page.getByRole('columnheader', { name: 'Deal Name sort asc' }).click();
+  await page.getByRole('cell', { name: 'submission proof to be deleted' }).click();
+  await page.getByRole('row', { name: '99 submission proof to be' }).getByRole('link').click();
+  await page.getByRole('button', { name: 'Upload' }).click();
+  await page.getByRole('button', { name: 'Upload' }).setInputFiles(['lease24babsee.htm', 'lease24bex102.xml', 'lease24bex103.xml']);
+  await page.getByText('Execution Status').click();
+  await page.getByText('Upload File(s) processing').click();
+  await page.getByText('CompletedSuccessfully :').click();
+  await page.getByRole('button', { name: 'Perform Validation' }).click();
+  await page.getByText('Execution Status').click();
+  await page.getByText('InProgress : 25% complete,').click();
+  await page.getByText('Execution Status').click();
+  await page.getByText('ABS-EE Validation completed').click();
+  await page.getByText('CompletedSuccessfully :').click();
+  await page.locator('span').filter({ hasText: 'Validation Results' }).click();
+  await page.getByText('Submission Proof').click();
+  await page.getByRole('button', { name: 'Create' }).click();
+  await page.getByText('Do you want to include the').click();
+  await page.getByRole('button', { name: 'No' }).click();
+  await page.getByText('Execution Status').click();
+  await page.getByText('Execution Status').click();
+  await page.getByText('Submission Proof completed').click();
+  await page.getByText('CompletedSuccessfully :').click();
+});
