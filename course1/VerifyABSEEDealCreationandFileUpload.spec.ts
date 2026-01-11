@@ -1,7 +1,9 @@
 import { test, expect } from '@playwright/test';
 
 test('Verify ABSEE Deal Creation and File Upload', async ({ page }) => {
-  
+  // 1. INCREASE TIMEOUT TO 2 MINUTES (120,000 ms)
+  // This gives you enough time for MFA + Upload + Verification
+  test.setTimeout(120000);
   //--------------------  1. Login Flow ---------------------------------------------
   await page.goto('xyz'); // Replace with your actual URL
 
