@@ -82,7 +82,7 @@ test('Verify ABSEE Deal Creation and File Upload', async ({ page }) => {
 
   // Direct upload to the hidden input (Fixes the Node is not an HTMLInputElement error)
   await page.locator('input[type="file"]').setInputFiles(filePath);
-
+  await page.waitForTimeout(10000);
   //--------------------------- 6. Verify Execution Status ---------------------------
   // Check Header
   await expect(page.getByText('Execution Status')).toBeVisible();
