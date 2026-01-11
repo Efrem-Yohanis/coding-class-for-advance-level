@@ -1,1 +1,76 @@
+Name
+
+Test Case 415047: Verify the SEC Information page
+
+
+Manual Test Case
+415047	Test Case	Verify the SEC Information page				
+			1	Shared steps 413501: Login into AB2 site				
+			2	Click on ABSEE Deal icon	Verify user navigates to the ABSEE Deal Home landing page			
+			3	Go to newly created and uploaded ABSEE deal	Verify the new deal is available with details and View and Delete button are also available			
+			4	Click on 'View' button	Verify View button is accessible and clickable to user			
+			5	Check for the SEC button 	Verify SEC buttton is available and enabled			
+			6	Click on the SEC button	"Verify ""SEC Information for Deal"" page is opened for the user and below fields available
+Submission information,ABS-EE CoRegistrant,Notification Email"			
+			7	Check for the tooltip message for the madatory fields	"Verify below tooltip message is shown when user try to save without filling the Mandatory fields
+""Please fill out this field"",""CCC lenght should be 8 characters"			
+			8	Check for the success message once all the fields are fiiled out	Verify a success popup is shown once user fills the fields and clicks save button			
+
+Record
+
+import { test, expect } from '@playwright/test';
+
+test('test', async ({ page }) => {
+  await page.goto('https://13f-qa.azurewebsites.net/');
+  await page.getByRole('button', { name: 'Sign in with DFIN Account' }).click();
+  await page.getByRole('button', { name: 'ABS-EE Deal Home' }).click();
+  await page.getByRole('heading', { name: 'ABS-EE Deal Home' }).click();
+  await page.getByRole('columnheader', { name: 'Deal Name sort asc' }).locator('span').click();
+  await page.getByRole('link', { name: '2' }).click();
+  await page.getByRole('row', { name: 'Testing job' }).getByRole('link').click();
+  await page.getByRole('columnheader', { name: 'Deal Name sort asc' }).click();
+  await page.getByRole('columnheader', { name: 'Deal Name sort desc' }).click();
+  await page.getByRole('row', { name: 'Testing job' }).getByRole('link').click();
+  await page.getByRole('link', { name: 'SEC' }).click();
+  await page.getByText('Submission Contact').click();
+  await page.locator('div').filter({ hasText: /^Name$/ }).click();
+  await page.getByText('Phone Number').click();
+  await page.getByText('SROS*NONE').click();
+  await page.locator('div').filter({ hasText: /^NONE$/ }).nth(1).click();
+  await page.getByText('Submission Information').click();
+  await page.getByText('Filer CIK*').click();
+  await page.getByRole('spinbutton').first().click();
+  await page.getByRole('spinbutton').first().fill('0000990461');
+  await page.locator('div').filter({ hasText: /^Filer CCC\*$/ }).click();
+  await page.getByText('Filer CCC*').click();
+  await page.getByRole('textbox').nth(4).click();
+  await page.getByRole('textbox').nth(4).fill('2trains*');
+  await page.getByText('ABS-EE File Number*').click();
+  await page.getByRole('textbox').nth(5).click();
+  await page.getByRole('textbox').nth(5).fill('002-12345');
+  await page.getByText('Depositor CIK*').click();
+  await page.locator('div').filter({ hasText: /^Depositor CIK\*$/ }).click();
+  await page.getByRole('spinbutton').nth(1).fill('0000990600');
+  await page.getByText('Sponsor CIK*').click();
+  await page.getByRole('spinbutton').nth(2).click();
+  await page.getByRole('spinbutton').nth(2).fill('0000990458');
+  await page.getByText('Asset Class*').click();
+  await page.locator('div').filter({ hasText: /^Select\.\.\.$/ }).nth(2).click();
+  await page.getByText('Auto leases', { exact: true }).click();
+ await page.getByText('ABS-EE Start Period*').click();
+ await page.getByText('ABS-EE End Period*').click();
+  await page.getByText('ABS-EE CoRegistrant').click();
+  await page.getByRole('columnheader', { name: 'Co-Reg Filer CIK' }).click();
+  await page.getByRole('columnheader', { name: 'Co-Reg Filer CCC' }).click();
+  await page.getByRole('columnheader', { name: 'Co-Reg File Number' }).click();
+  await page.getByText('Notification Emails').click();
+  await page.getByText('Email Address').first().click();
+  await page.locator('input[type="email"]').first().click();
+  await page.locator('input[type="email"]').first().fill('xxxxxx@yhaoo.com');
+  await page.getByRole('button', { name: 'Save' }).click();
+  await page.getByRole('button', { name: 'Save' }).click();
+  await page.getByText('Saved successfully').click();
+  await page.getByText('Success', { exact: true }).click();
+  await page.getByText('Saved successfully').click();
+});
 
