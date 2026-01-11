@@ -97,7 +97,7 @@ test('Verify ABSEE Deal Creation and File Upload', async ({ page }) => {
   // ------------------------------- End Upload Section -------------------------------------
 });
 =====================
-  import { test, expect } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 
 test('test', async ({ page }) => {
   await page.goto('https://13f-qa.azurewebsites.net/');
@@ -113,6 +113,16 @@ test('test', async ({ page }) => {
   await page.getByText('EX-').first().click();
   await page.getByText('EX-').nth(1).click();
   await page.getByText('Execution Status').click();
-  await page.getByText('Upload File(s) processing completed CompletedSuccessfully : Finished Upload ABSEE').click();
-
+  await page.getByText('Upload File(s) processing').click();
+  await page.getByText('CompletedSuccessfully :').click();
+  await page.getByText('Upload File(s) processing').click();
+  await page.getByText('CompletedSuccessfully :').click();
+  await page.getByText('Upload File(s) processing completedCompletedSuccessfully : Finished Upload ABSEE').click();
+  await page.getByText('CompletedSuccessfully :').click();
+  await page.getByText('CompletedSuccessfully :').click();
+  await page.getByText('Upload File(s) processing').click();
+  await page.getByText('CompletedSuccessfully :').click();
+  await page.getByText('CompletedSuccessfully :').click();
+  await page.getByText('CompletedSuccessfully :').click();
+  await page.getByText('CompletedSuccessfully :').click();
 });
