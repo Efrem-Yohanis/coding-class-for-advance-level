@@ -57,3 +57,73 @@ test('Verify ABSEE Deal Creation and File Upload', async ({ page }) => {
 //   await expect(page.getByText('CompletedSuccessfully')).toBeVisible();
   // ----------------------------------- End Upload Section ---------------------------------------------
 });
+=========================================================
+  
+import { Page, expect } from '@playwright/test';
+
+export async function loginToAB2(page: Page) {
+  const url = process.env.AB2_BASE_URL;
+  const email = process.env.USER_EMAIL;
+  const password = process.env.USER_PASSWORD;
+
+  if (!url || !email || !password) {
+    throw new Error('Missing env vars: AB2_BASE_URL, USER_EMAIL, USER_PASSWORD.');
+  }
+
+  // Step 1: Open AB2
+  await page.goto(url);
+
+  // Step 2: DFIN sign-in button
+  const signInButton = page.getByRole('button', { name: 'Sign in with DFIN Account' });
+  await expect(signInButton).toBeVisible();
+  await signInButton.click();
+
+  // Step 3: Enter email
+  const emailInput = page.getByRole('textbox', { name: 'Email address' });
+  await expect(emailInput).toBeVisible();
+  await emailInput.fill(email);
+  await page.getByRole('button', { name: 'Continue' }).click();
+
+  // Step 4: Enter password
+  const passwordInput = page.locator('#i0118')
+    .or(page.getByRole('textbox', { name: /Enter the password for/i }));
+  await expect(passwordInput).toBeVisible({ timeout: 15_000 });
+  await passwordInput.fill(password);
+  await page.getByRole('button', { name: /^Sign in$/i }).click();
+
+  // ✅ Step 5: Select the specific MFA method button (if the chooser appears)
+  const approveOnAuthenticatorBtn = page.getByRole('button', {
+    name: 'Approve a request on my Microsoft Authenticator app',
+  });
+  try {
+    await approveOnAuthenticatorBtn.waitFor({ state: 'visible', timeout: 5_000 });
+    await approveOnAuthenticatorBtn.click();
+  } catch {
+    // Method chooser not shown—tenant may auto-push or use a different flow.
+  }
+
+  // Step 6: Handle MFA—push approval screen
+  const mfaHeading = page.getByRole('heading', { name: /Approve sign in request/i });
+  try {
+    await expect(mfaHeading).toBeVisible({ timeout: 8_000 });
+    await page.waitForTimeout(20_000); // tune to org’s typical approval time
+  } catch {
+    // No approval heading detected; could be an OTP/code flow or silent success.
+  }
+
+  // Step 7: “Stay signed in?” prompt (Azure AD)
+  const staySignedInYes = page.locator('#idSIButton9'); // Yes
+  const staySignedInNo = page.locator('#idBtn_Back');   // No
+  try {
+    await staySignedInYes.waitFor({ state: 'visible', timeout: 5_000 });
+    if (await staySignedInNo.isVisible()) {
+      await staySignedInNo.click(); // choose No for cleaner test runs
+    } else {
+      await staySignedInYes.click();
+    }
+  } catch {
+    // Prompt didn’t appear—nothing to do.
+  }
+
+  
+}
