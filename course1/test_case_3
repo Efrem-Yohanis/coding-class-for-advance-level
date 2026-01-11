@@ -1,1 +1,79 @@
+Tecase 415038  Verify the validation results for ABSEE deal
 
+
+1 test name
+
+Test Case 415038: Verify the validation results for ABSEE deal
+
+2. Manual test case
+
+
+
+1
+Shared steps 413501: Login into AB2 site
+2
+Go to newly created and uploaded ABSEE deal
+Verify the new deal is available with details and View and Delete button are also available
+3
+Click on 'View' button
+Verify View button is accessible and clickable to user
+4
+Check ABSEE deal details page opens
+Verify user successfully navigates to ABSEE Deal details page
+5
+Click on Perform Validation button
+Verify the Select pair for validation popup displays and user able to select any radio button,ok and cancel button
+6
+Select the radio button
+Verify radio button is selectable and ok button is enabled
+7
+Click on the ok button
+Verify user clicks on the ok button and validation starts
+8
+Check for the Execution Status tab
+Verify a message indicating 'ABS-EE Validation completed,CompletedSuccessfully : Finished Validation' is being displayed
+9
+Check the Validation Results tab is updated
+Verify the Filename,Created Date,Period Start,Period End,Number of Records,Number of Errors,Number of Warnings details are updated once the validation is completed
+
+
+3 records
+
+import { test, expect } from '@playwright/test';
+
+test('test', async ({ page }) => {
+  await page.goto('https://13f-qa.azurewebsites.net/');
+  await page.getByRole('button', { name: 'Sign in with DFIN Account' }).click();
+  await page.getByRole('textbox', { name: 'Email address' }).click();
+  await page.getByRole('textbox', { name: 'Email address' }).fill('biniyam.a.gebeyehu@dfinsolutions.com');
+  await page.getByRole('button', { name: 'Continue' }).click();
+  await page.locator('#i0118').press('CapsLock');
+  await page.getByRole('textbox', { name: 'Enter the password for' }).fill('A');
+  await page.getByRole('textbox', { name: 'Enter the password for' }).press('CapsLock');
+  await page.getByRole('textbox', { name: 'Enter the password for' }).fill('Alem123123*');
+  await page.getByRole('button', { name: 'Sign in' }).click();
+  await page.goto('https://13f-qa.azurewebsites.net/deals');
+  await page.getByRole('button', { name: 'ABS-EE Deal Home' }).click();
+  await page.getByRole('row', { name: '548678 ar 29489 09-30-2024 01' }).getByRole('link').click();
+  await page.getByRole('button', { name: 'Perform Validation' }).click();
+  await page.getByRole('status').click();
+  await page.getByText('InProgress : 35% complete,').click();
+  await page.getByText('Execution Status').click();
+  await page.getByText('ABS-EE Validation completed').click();
+  await page.getByText('CompletedSuccessfully :').click();
+  await page.locator('span').filter({ hasText: 'Validation Results' }).click();
+  await page.getByText('Filename:').click();
+  await page.getByText('ValidationResults.xlsx').click();
+  await page.locator('span').filter({ hasText: /^Created Date:$/ }).click();
+  await page.locator('span').filter({ hasText: '-11-2026, 1:45:11 PM EST' }).click();
+  await page.getByText('Period Start:').click();
+  await page.getByText('08-01-').click();
+  await page.getByText('Period End:').click();
+  await page.getByText('09-30-').click();
+  await page.getByText('Number of Records:').click();
+  await page.getByText('29489').click();
+  await page.getByText('Number of Errors:').click();
+  await page.getByText('0', { exact: true }).first().click();
+  await page.getByText('Number of Warnings:').click();
+  await page.getByText('0', { exact: true }).nth(1).click();
+});
