@@ -83,46 +83,18 @@ test('Verify ABSEE Deal Creation and File Upload', async ({ page }) => {
   // Direct upload to the hidden input (Fixes the Node is not an HTMLInputElement error)
   await page.locator('input[type="file"]').setInputFiles(filePath);
 
-  // ------------------------------- 6. Verify Execution Status -----------------------------
-  // Verify the processing starts
+  //--------------------------- 6. Verify Execution Status ---------------------------
+  // Check Header
+  await expect(page.getByText('Execution Status')).toBeVisible();
+
+  // Wait for "Processing" label
   await expect(page.getByText('Upload File(s) processing')).toBeVisible({ timeout: 15000 });
 
-  // Verify completion
-  // Using a regex /CompletedSuccessfully/ to ignore minor spacing or colon differences
-  const successMessage = page.getByText(/CompletedSuccessfully/);
-  await expect(successMessage).toBeVisible({ timeout: 60000 });
+  // Wait for "CompletedSuccessfully" (Long timeout for ZIP processing)
+  const successLabel = page.getByText(/CompletedSuccessfully/);
+  await expect(successLabel).toBeVisible({ timeout: 60000 });
 
-  console.log('Test Passed: Upload completed and verified successfully!');
-  
-  // ------------------------------- End Upload Section -------------------------------------
-});
-=====================
-import { test, expect } from '@playwright/test';
+  // Final check for the specific string
+  await expect(page.getByText(/Finished Upload ABSEE/)).toBeVisible();
 
-test('test', async ({ page }) => {
-  await page.goto('https://13f-qa.azurewebsites.net/');
-  await page.getByRole('button', { name: 'Sign in with DFIN Account' }).click();
-  await page.getByRole('button', { name: 'Upload' }).click();
-  await page.getByRole('button', { name: 'Upload' }).setInputFiles('Aurora Lease 1November2025_1120_AutoLease.zip');
-  await page.getByRole('columnheader', { name: 'File Name' }).click();
-  await page.getByText('lease24babsee.htm').click();
-  await page.getByText('lease24bex102.xml').click();
-  await page.getByText('lease24bex103.xml').click();
-  await page.getByRole('columnheader', { name: 'Form Type' }).click();
-  await page.getByText('ABS-EE').nth(3).click();
-  await page.getByText('EX-').first().click();
-  await page.getByText('EX-').nth(1).click();
-  await page.getByText('Execution Status').click();
-  await page.getByText('Upload File(s) processing').click();
-  await page.getByText('CompletedSuccessfully :').click();
-  await page.getByText('Upload File(s) processing').click();
-  await page.getByText('CompletedSuccessfully :').click();
-  await page.getByText('Upload File(s) processing completedCompletedSuccessfully : Finished Upload ABSEE').click();
-  await page.getByText('CompletedSuccessfully :').click();
-  await page.getByText('CompletedSuccessfully :').click();
-  await page.getByText('Upload File(s) processing').click();
-  await page.getByText('CompletedSuccessfully :').click();
-  await page.getByText('CompletedSuccessfully :').click();
-  await page.getByText('CompletedSuccessfully :').click();
-  await page.getByText('CompletedSuccessfully :').click();
 });
