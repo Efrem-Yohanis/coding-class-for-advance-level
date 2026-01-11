@@ -5,7 +5,7 @@ Test Case 415045: Verify that 'Convert to PDF' button in the submission proof is
 
 Manual  test case
 
-415045	Test Case	Verify that 'Convert to PDF' button in the submission proof is enabled				ArcSuite\AB2-13F	Manasa Gedela <manasa.gedela@dfinsolutions.com>	Design
+415045	Test Case	Verify that 'Convert to PDF' button in the submission proof is enabled				
 			1	Shared steps 413501: Login into AB2 site				
 			2	Go to newly created and uploaded ABSEE deal	Verify the new deal is available with details and View and Delete button are also available			
 			3	Click on Create button under Submission Proof	Verify a popup "Do you want to include the contents of the Ex-102 file in the submission proof?" is displayed			
