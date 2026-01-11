@@ -99,7 +99,7 @@ test('test', async ({ page }) => {
   await page.getByText('Notification Emails').click();
   await page.getByText('Email Address').first().click();
   await page.locator('input[type="email"]').first().click();
-  await page.locator('input[type="email"]').first().fill('biniyam.a.gebeyehu@dfinsolutions.com');
+  await page.locator('input[type="email"]').first().fill('xxxxxx.com');
   await page.getByRole('button', { name: 'Save' }).click();
   await page.locator('.react-datepicker-ignore-onclickoutside').click();
   await page.getByText('ABS-EE Start Period*').click();
