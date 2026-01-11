@@ -73,16 +73,22 @@ test('Verify ABSEE Deal Creation and File Upload', async ({ page }) => {
   // ------------------------- End Verification & Navigation -------------------------------
 
 
-  // ------------------------------- 5. Upload Section --------------------------------------
-  // Uncomment these when you are ready to test the file upload part
-  
-  /*
+ // ------------------------------- 5. Upload Section --------------------------------------
+  // Verify we are on the details page
   await expect(page.getByText('FILE UPLOAD DETAILS')).toBeVisible();
-  // Ensure the path to your zip file is correct
-  await page.getByRole('button', { name: 'Upload' }).setInputFiles('C:/test-files/input_data.zip');
+
+  // Use path.join to create a reliable relative path
+  const path = require('path');
+  const filePath = path.join(__dirname, 'resources', 'myfile.zip');
+
+  // Locate the upload input and set the file
+  // Note: If clicking "Upload" opens a file dialog, setInputFiles should 
+  // be used on the hidden <input type="file"> element.
+  await page.getByRole('button', { name: 'Upload' }).setInputFiles(filePath);
 
   // 6. Verify Upload Status
-  await expect(page.getByText('CompletedSuccessfully')).toBeVisible({ timeout: 30000 });
-  */
+  // Increased timeout to 60 seconds as zip processing can be slow
+  await expect(page.getByText('CompletedSuccessfully')).toBeVisible({ timeout: 60000 });
+  
   // ------------------------------- End Upload Section -------------------------------------
 });
