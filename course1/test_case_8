@@ -1,1 +1,53 @@
+name
 
+Test Case 415043: Verify 'View' button in the submission proof is enabled
+
+
+
+Manual test case
+
+
+415043	Test Case	Verify 'View' button in the submission proof is enabled				ArcSuite\AB2-13F	Manasa Gedela <manasa.gedela@dfinsolutions.com>	Design
+			1	Shared steps 413501: Login into AB2 site				
+			2	Go to newly created and uploaded ABSEE deal	Verify the new deal is available with details and View and Delete button are also available			
+			3	Click on Create button under Submission Proof	Verify a popup "Do you want to include the contents of the Ex-102 file in the submission proof?" is displayed			
+			4	Click "No" if client doesn't want to include EX-102 file	Verif y the 'Execution Status' tab should display a message that says 'Submission Proof completed,CompletedSuccessfully : Finished Submission proof'			
+			5	Click "Yes" if client want to include EX-102 file	Verif y the 'Execution Status' tab should display a message that says 'Submission Proof completed,CompletedSuccessfully : Finished Submission proof'			
+			6	Check the View button is enabled and clickable by user	Verify User should be able to view the entire ABSEE file content in a new browser tab			
+
+
+
+
+Record
+
+
+import { test, expect } from '@playwright/test';
+
+test('test', async ({ page }) => {
+  await page.goto('https://13f-qa.azurewebsites.net/');
+  await page.getByRole('button', { name: 'Sign in with DFIN Account' }).click();
+  await page.getByRole('button', { name: 'ABS-EE Deal Home' }).click();
+  await page.getByRole('heading', { name: 'ABS-EE Deal Home' }).click();
+  await page.getByRole('columnheader', { name: 'Deal Name sort asc' }).locator('span').click();
+  await page.getByRole('link', { name: '2' }).click();
+  await page.getByRole('link', { name: '1' }).click();
+  await page.getByRole('columnheader', { name: 'Deal Name sort desc' }).locator('span').click();
+  await page.getByRole('columnheader', { name: 'Deal Name sort desc' }).locator('span').click();
+  await page.getByRole('columnheader', { name: 'Deal Name sort desc' }).locator('span').click();
+  await page.getByRole('columnheader', { name: 'Deal Name sort asc' }).locator('span').click();
+  await page.getByRole('row', { name: '99 submission proof to be' }).getByRole('link').click();
+  await page.getByText('Submission Proof').click();
+  await page.getByText('Submission Proof').click();
+  await page.getByRole('button', { name: 'Create' }).click();
+  await page.getByRole('button', { name: 'No' }).click();
+  await page.getByText('File Name:').click();
+  await page.getByText('99.html').click();
+  await page.getByText('Created Date:').nth(1).click();
+  await page.getByText('-11-2026, 5:00:24 PM EST').click();
+  await page.getByRole('button', { name: 'Create' }).click();
+  await page.getByRole('button', { name: 'Yes' }).click();
+  await page.getByText('Execution Status').click();
+  await page.getByText('Submission Proof completed').click();
+  await page.getByText('CompletedSuccessfully :').click();
+  await page.getByRole('button', { name: 'View', exact: true }).click();
+});
