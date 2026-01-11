@@ -96,3 +96,23 @@ test('Verify ABSEE Deal Creation and File Upload', async ({ page }) => {
   
   // ------------------------------- End Upload Section -------------------------------------
 });
+=====================
+  import { test, expect } from '@playwright/test';
+
+test('test', async ({ page }) => {
+  await page.goto('https://13f-qa.azurewebsites.net/');
+  await page.getByRole('button', { name: 'Sign in with DFIN Account' }).click();
+  await page.getByRole('button', { name: 'Upload' }).click();
+  await page.getByRole('button', { name: 'Upload' }).setInputFiles('Aurora Lease 1November2025_1120_AutoLease.zip');
+  await page.getByRole('columnheader', { name: 'File Name' }).click();
+  await page.getByText('lease24babsee.htm').click();
+  await page.getByText('lease24bex102.xml').click();
+  await page.getByText('lease24bex103.xml').click();
+  await page.getByRole('columnheader', { name: 'Form Type' }).click();
+  await page.getByText('ABS-EE').nth(3).click();
+  await page.getByText('EX-').first().click();
+  await page.getByText('EX-').nth(1).click();
+  await page.getByText('Execution Status').click();
+  await page.getByText('Upload File(s) processing completed CompletedSuccessfully : Finished Upload ABSEE').click();
+
+});
