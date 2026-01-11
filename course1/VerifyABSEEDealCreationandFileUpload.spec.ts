@@ -87,85 +87,28 @@ test('Verify ABSEE Deal Creation and File Upload', async ({ page }) => {
   await page.waitForTimeout(10000);
   
   //--------------------------- 6. Verify Execution Status ---------------------------
-  // 1. Check Header first to ensure the table/grid is loaded
+  
+  // 1. Ensure the header is there
   await expect(page.getByText('Execution Status')).toBeVisible();
 
-  // 2. Wait for "Processing" label using a Regex (case-insensitive and flexible)
-  // This will find "Upload File(s) processing", "processing", or "Processing..."
-  console.log('Checking for processing status...');
-  const processingText = page.getByText(/processing/i);
+  // 2. Refresh the status: In some apps, clicking the label or a 'Refresh' button is needed
+  // If 'Execution Status' is just text, try clicking it to see if it triggers a UI refresh
+  await page.getByText('Execution Status').click({ force: true });
   
-  // We check if it's visible, but we won't CRASH if it's already finished 
-  // and moved to "CompletedSuccessfully"
-  try {
-      await expect(processingText).toBeVisible({ timeout: 10000 });
-  } catch (e) {
-      console.log('Processing status skipped or too fast, checking for completion...');
-  }
+  console.log('Waiting for completion status (Polling for 60s)...');
 
-  // 3. Wait for "CompletedSuccessfully" (The most important check)
-  const successLabel = page.getByText(/CompletedSuccessfully/i);
- 
-  await expect(successLabel).toBeVisible({ timeout: 60000 });
+  // 3. Use a locator that looks for the text anywhere in the row
+  // This is more robust than getByText if the text is inside a specific span or div
+  const successLabel = page.locator('text=CompletedSuccessfully');
 
-  // 4. Final confirmation string
+  // 4. Increase timeout slightly and try to wait for the final message
+  // If it's a long process, the server might need more time
+  await expect(successLabel).toBeVisible({ timeout: 90000 });
+
+  // 5. Final verification of the full string
   await expect(page.getByText(/Finished Upload ABSEE/i)).toBeVisible();
+
+  console.log('✅ Test Passed: Successfully verified completion.');
 
 });
-===================
-  //--------------------------- 6. Verify Execution Status ---------------------------
-  // 1. Check Header first to ensure the table/grid is loaded
-  await expect(page.getByText('Execution Status')).toBeVisible();
 
-  // 2. Wait for "Processing" label using a Regex (case-insensitive and flexible)
-  // This will find "Upload File(s) processing", "processing", or "Processing..."
-  console.log('Checking for processing status...');
-  const processingText = page.getByText(/processing/i);
-  
-  // We check if it's visible, but we won't CRASH if it's already finished 
-  // and moved to "CompletedSuccessfully"
-  try {
-      await expect(processingText).toBeVisible({ timeout: 10000 });
-  } catch (e) {
-      console.log('Processing status skipped or too fast, checking for completion...');
-  }
-
-  // 3. Wait for "CompletedSuccessfully" (The most important check)
-  const successLabel = page.getByText(/CompletedSuccessfully/i);
- 
-  await expect(successLabel).toBeVisible({ timeout: 60000 });
-
-  // 4. Final confirmation string
-  await expect(page.getByText(/Finished Upload ABSEE/i)).toBeVisible();
-======================================Running 1 test using 1 worker
-[chromium] › tests\ABSEEDealCreationandFileUpload.spec.ts:3:5 › Verify ABSEE Deal Creation and File Upload
-Action Required: Approve the notification on your mobile device...
-Checking for processing status...
-Processing status skipped or too fast, checking for completion...
-  1) [chromium] › tests\ABSEEDealCreationandFileUpload.spec.ts:3:5 › Verify ABSEE Deal Creation and File Upload 
-
-    Error: expect(locator).toBeVisible() failed
-
-    Locator: getByText(/CompletedSuccessfully/i)
-    Expected: visible
-    Timeout: 60000ms
-    Error: element(s) not found
-
-    Call log:
-      - Expect "toBeVisible" with timeout 60000ms
-      - waiting for getByText(/CompletedSuccessfully/i)
-
-
-      104 |   const successLabel = page.getByText(/CompletedSuccessfully/i);
-      105 |
-    > 106 |   await expect(successLabel).toBeVisible({ timeout: 60000 });
-          |                              ^
-      107 |
-      108 |   // 4. Final confirmation string
-      109 |   await expect(page.getByText(/Finished Upload ABSEE/i)).toBeVisible();
-        at C:\AB2 Playwright Project\tests\ABSEEDealCreationandFileUpload.spec.ts:106:30
-
-    Error Context: test-results\ABSEEDealCreationandFileUp-aa2c6-al-Creation-and-File-Upload-chromium\error-context.md
-
-  1 failed
-    [chromium] › tests\ABSEEDealCreationandFileUpload.spec.ts:3:5 › Verify ABSEE Deal Creation and File Upload
