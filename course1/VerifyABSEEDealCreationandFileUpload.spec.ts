@@ -38,8 +38,8 @@ test('Verify ABSEE Deal Creation and File Upload', async ({ page }) => {
   
   // Select the Company from the dropdown (Added based on Step 3 of manual test)
   // Adjust 'Company Name' to the actual text in your dropdown
-  await page.getByRole('combobox').first().click(); 
-  await page.getByRole('option', { name: 'Your Company Name' }).click();
+  // await page.getByRole('combobox').first().click(); 
+  // await page.getByRole('option', { name: 'Your Company Name' }).click();
 
   // 1. Open the creation modal
   await page.getByRole('button', { name: 'Create New Deal' }).click();
