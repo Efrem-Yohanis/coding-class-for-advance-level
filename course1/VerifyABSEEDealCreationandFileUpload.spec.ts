@@ -112,3 +112,28 @@ test('Verify ABSEE Deal Creation and File Upload', async ({ page }) => {
   await expect(page.getByText(/Finished Upload ABSEE/i)).toBeVisible();
 
 });
+===================
+  //--------------------------- 6. Verify Execution Status ---------------------------
+  // 1. Check Header first to ensure the table/grid is loaded
+  await expect(page.getByText('Execution Status')).toBeVisible();
+
+  // 2. Wait for "Processing" label using a Regex (case-insensitive and flexible)
+  // This will find "Upload File(s) processing", "processing", or "Processing..."
+  console.log('Checking for processing status...');
+  const processingText = page.getByText(/processing/i);
+  
+  // We check if it's visible, but we won't CRASH if it's already finished 
+  // and moved to "CompletedSuccessfully"
+  try {
+      await expect(processingText).toBeVisible({ timeout: 10000 });
+  } catch (e) {
+      console.log('Processing status skipped or too fast, checking for completion...');
+  }
+
+  // 3. Wait for "CompletedSuccessfully" (The most important check)
+  const successLabel = page.getByText(/CompletedSuccessfully/i);
+ 
+  await expect(successLabel).toBeVisible({ timeout: 60000 });
+
+  // 4. Final confirmation string
+  await expect(page.getByText(/Finished Upload ABSEE/i)).toBeVisible();
