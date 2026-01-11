@@ -74,49 +74,25 @@ test('Verify ABSEE Deal Creation and File Upload', async ({ page }) => {
 
 
  // ------------------------------- 5. Upload Section --------------------------------------
-  // Verify we are on the details page
   await expect(page.getByText('FILE UPLOAD DETAILS')).toBeVisible();
-
-  // Use path.join to create a reliable relative path
+  
   const path = require('path');
+  // Since the script and resources are in the same "tests" root:
   const filePath = path.join(__dirname, 'resources', 'myfile.zip');
 
-  // Locate the upload input and set the file
-  // Note: If clicking "Upload" opens a file dialog, setInputFiles should 
-  // be used on the hidden <input type="file"> element.
-  await page.getByRole('button', { name: 'Upload' }).setInputFiles(filePath);
+  // Direct upload to the hidden input (Fixes the Node is not an HTMLInputElement error)
+  await page.locator('input[type="file"]').setInputFiles(filePath);
 
-  // 6. Verify Upload Status
-  // Increased timeout to 60 seconds as zip processing can be slow
-  await expect(page.getByText('CompletedSuccessfully')).toBeVisible({ timeout: 60000 });
+  // ------------------------------- 6. Verify Execution Status -----------------------------
+  // Verify the processing starts
+  await expect(page.getByText('Upload File(s) processing')).toBeVisible({ timeout: 15000 });
+
+  // Verify completion
+  // Using a regex /CompletedSuccessfully/ to ignore minor spacing or colon differences
+  const successMessage = page.getByText(/CompletedSuccessfully/);
+  await expect(successMessage).toBeVisible({ timeout: 60000 });
+
+  console.log('Test Passed: Upload completed and verified successfully!');
   
   // ------------------------------- End Upload Section -------------------------------------
 });
-==================
-  To open last HTML report run:
-
-  npx playwright show-report
-
-PS C:\AB2 Playwright Project> npx playwright test ABSEEDealCreationandFileUpload --project chromium --headed
-
-Running 1 test using 1 worker
-[chromium] › tests\ABSEEDealCreationandFileUpload.spec.ts:3:5 › Verify ABSEE Deal Creation and File Upload
-Action Required: Approve the notification on your mobile device...
-  1) [chromium] › tests\ABSEEDealCreationandFileUpload.spec.ts:3:5 › Verify ABSEE Deal Creation and File Upload 
-
-    Error: locator.setInputFiles: Error: Node is not an HTMLInputElement
-    Call log:
-      - waiting for getByRole('button', { name: 'Upload' })
-        - locator resolved to <button type="button" class="back-tohome btn btn-primary">…</button>
-
-
-      85 |   // Note: If clicking "Upload" opens a file dialog, setInputFiles should
-      86 |   // be used on the hidden <input type="file"> element.
-    > 87 |   await page.getByRole('button', { name: 'Upload' }).setInputFiles(filePath);
-      90 |   // Increased timeout to 60 seconds as zip processing can be slow
-        at C:\AB2 Playwright Project\tests\ABSEEDealCreationandFileUpload.spec.ts:87:3
-
-    Error Context: test-results\ABSEEDealCreationandFileUp-aa2c6-al-Creation-and-File-Upload-chromium\error-context.md
-
-  1 failed
-    [chromium] › tests\ABSEEDealCreationandFileUpload.spec.ts:3:5 › Verify ABSEE Deal Creation and File Upload
