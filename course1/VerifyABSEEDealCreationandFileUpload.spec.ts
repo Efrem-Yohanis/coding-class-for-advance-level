@@ -92,3 +92,31 @@ test('Verify ABSEE Deal Creation and File Upload', async ({ page }) => {
   
   // ------------------------------- End Upload Section -------------------------------------
 });
+==================
+  To open last HTML report run:
+
+  npx playwright show-report
+
+PS C:\AB2 Playwright Project> npx playwright test ABSEEDealCreationandFileUpload --project chromium --headed
+
+Running 1 test using 1 worker
+[chromium] › tests\ABSEEDealCreationandFileUpload.spec.ts:3:5 › Verify ABSEE Deal Creation and File Upload
+Action Required: Approve the notification on your mobile device...
+  1) [chromium] › tests\ABSEEDealCreationandFileUpload.spec.ts:3:5 › Verify ABSEE Deal Creation and File Upload 
+
+    Error: locator.setInputFiles: Error: Node is not an HTMLInputElement
+    Call log:
+      - waiting for getByRole('button', { name: 'Upload' })
+        - locator resolved to <button type="button" class="back-tohome btn btn-primary">…</button>
+
+
+      85 |   // Note: If clicking "Upload" opens a file dialog, setInputFiles should
+      86 |   // be used on the hidden <input type="file"> element.
+    > 87 |   await page.getByRole('button', { name: 'Upload' }).setInputFiles(filePath);
+      90 |   // Increased timeout to 60 seconds as zip processing can be slow
+        at C:\AB2 Playwright Project\tests\ABSEEDealCreationandFileUpload.spec.ts:87:3
+
+    Error Context: test-results\ABSEEDealCreationandFileUp-aa2c6-al-Creation-and-File-Upload-chromium\error-context.md
+
+  1 failed
+    [chromium] › tests\ABSEEDealCreationandFileUpload.spec.ts:3:5 › Verify ABSEE Deal Creation and File Upload
