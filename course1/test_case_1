@@ -1,7 +1,20 @@
 1. test name 
-
+415036	Test Case	Verify user able to create new  ABSEE deal			
 2. maual test case
 
+ID	Work Item Type	Title	Test Step	Step Action	Step Expected	Area Path	Assigned To	State
+415036	Test Case	Verify user able to create new  ABSEE deal				
+			1	Shared steps 413501: Login into AB2 site				
+			2	Click on ABSEE Deal icon	Verify user navigates to the ABSEE Deal Home landing page			
+			3	Select the Company from the dropdown	Verify user is able to select values from the Company dropdown			
+			4	Click on the Create New Deal button	"Verify Filing Details dropdown opens and contains below fields  and buttons
+Job Number,Deal Name,Period End Date,Target Filing Date,Filing Type,ABS Scheme Type,Create,Clone,Cancel"			
+			5	Enter all the details in the Filing Details section	Verify user is able to enter the details and click on the create button			
+			6	Click on 'Create' 	Verify ABSEE Deal is created successfully and the new deal is available in the home deal table			
+			7	Go to the newly created ABSEE deal which is in the list	Verify the new deal is available with details and View and Delete button are also available			
+			8	Click on 'View' to access the newly created deal	Verify View button is accessible and clickable to user			
+			9	Check ABSEE deal details page opens	Verify user successfully navigates to ABSEE Deal details page			
+			10	Click on 'Upload' and select any ABSEE input zip file	Verify Upload is successful and input files list is available			
 
 3. recoreds: 
 
