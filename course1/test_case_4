@@ -1,1 +1,56 @@
 
+Test Case 415039: Verify the Validation Results tab for validated ABSEE deal
+Test case name
+
+Verify the Validation Results tab for validated ABSEE deal
+
+Manual testcase
+
+415039	Test Case	Verify the Validation Results tab for validated ABSEE deal			
+			1	Shared steps 413501: Login into AB2 site			
+			2	Go to newly created and uploaded ABSEE deal	Verify the new deal is available with details and View and Delete button are also available		
+			3	Click on 'View' button	Verify View button is accessible and clickable to user		
+			4	Click on Perform Validation button	Verify the validation is completed and  'ABS-EE Validation completed,CompletedSuccessfully : Finished Validation' is displayed		
+			5	Check the Validation Results tab is updated	Verify the Filename,Created Date,Period Start,Period End,Number of Records,Number of Errors,Number of Warnings details are updated once the validation is completed		
+			6	Check for the FileName 	Verify the validation filename is updated next to the FileName field		
+			7	Check for the Created Date	Verify the validation Created Date along with the timestamp is updated next to the Created Date field		
+			8	Check for the Period Start	Verify the validation Period Start date is updated next to the Period Start field		
+			9	Check for the Period  End	Verify the validation Period End date is updated next to the Period End field		
+			10	Check for the Number of Records	Verify the validation file records count is updated next to the Number of Records field		
+			11	Check for the Number of Errors	Verify the validation file errors count is updated next to the Number of Errors field		
+			12	Check for the Number of Warnings	Verify the validation file warnings count is updated next to the Number of Warnings field	
+
+Record 
+import { test, expect } from '@playwright/test';
+
+test('test', async ({ page }) => {
+  await page.goto('https://13f-qa.azurewebsites.net/');
+  await page.getByRole('heading', { name: 'ABS-EE Deal Home' }).click();
+  await page.getByRole('columnheader', { name: 'Options' }).click();
+  await page.getByRole('row', { name: '548678 ar 29489 09-30-2024 01' }).getByRole('link').click(); ( This is clicking on view)
+  await page.getByRole('button', { name: 'Perform Validation' }).click();
+  await page.getByText('Execution Status').click();
+  await page.getByText('InProgress : 10% complete,').click();
+  await page.getByText('InProgress : 20% complete,').click();
+  await page.getByText('Execution Status').click();
+  await page.getByText('ABS-EE Validation completed').click();
+  await page.getByText('CompletedSuccessfully :').click();
+  await page.locator('span').filter({ hasText: 'Validation Results' }).click();
+  await page.getByText('Filename:').click();
+  await page.getByText('ValidationResults.xlsx').click();
+  await page.locator('span').filter({ hasText: /^Created Date:$/ }).click();
+  await page.locator('span').filter({ hasText: '-11-2026, 2:53:19 PM EST' }).click();
+  await page.getByText('Period Start:').click();
+  await page.getByText('08-01-').click();
+  await page.getByText('Period End:').click();
+  await page.getByText('09-30-').click();
+  await page.getByText('Number of Records:').click();
+  await page.getByText('29489').click();
+  await page.getByText('Number of Errors:').click();
+  await page.getByText('0', { exact: true }).first().click();
+  await page.getByText('Number of Warnings:').click();
+  await page.getByText('0', { exact: true }).nth(1).click();
+
+});
+	
+
