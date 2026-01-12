@@ -8,7 +8,7 @@ Test Case 415052: Verify the result for the Create Submission and Download butto
 
 Manual test case
 
-415052	Test Case	Verify the result for the Create Submission and Download button				ArcSuite\AB2-13F	Manasa Gedela <manasa.gedela@dfinsolutions.com>	Design
+415052	Test Case	Verify the result for the Create Submission and Download button				
 			1	Shared steps 413501: Login into AB2 site				
 			2	Click on ABSEE Deal icon	Verify user navigates to the ABSEE Deal Home landing page			
 			3	Go to newly created and uploaded ABSEE deal	Verify the new deal is available with details and View and Delete button are also available			
@@ -105,7 +105,7 @@ test('test', async ({ page }) => {
   await page.getByText('Notification Emails').click();
   await page.getByText('Email Address').first().click();
   await page.locator('input[type="email"]').first().click();
-  await page.locator('input[type="email"]').first().fill('biniyam.a.gebeyehu@dfinsolutions.com');
+  await page.locator('input[type="email"]').first().fill('xxxx.com');
   await page.getByRole('button', { name: 'Save' }).click();
   await page.locator('.react-datepicker-ignore-onclickoutside').click();
   await page.getByText('ABS-EE Start Period*').click();
