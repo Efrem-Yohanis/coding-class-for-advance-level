@@ -7,7 +7,8 @@ Manual test case
 			2	Go to newly created and uploaded ABSEE deal	Verify the new deal is available with details and View and Delete button are also available			
 			3	Click on Create button under Submission Proof	Verify a popup "Do you want to include the contents of the Ex-102 file in the submission proof?" is displayed			
 			4	Check for the FileName 	Verify the submission proof filename is updated next to the FileName fieldand the filename should match the jobnumber			
-			5	Check for the submission proof created date	Verify the submission proof  Created Date along with the timestamp is updated next to the Created Date field			
+			5	Check for the submission proof created date	Verify the submission proof  
+      Created Date along with the timestamp is updated next to the Created Date field			
 
 records
 
