@@ -34,7 +34,14 @@ Check for the Execution Status tab
 Verify a message indicating 'ABS-EE Validation completed,CompletedSuccessfully : Finished Validation' is being displayed
 9
 Check the Validation Results tab is updated
-Verify the Filename,Created Date,Period Start,Period End,Number of Records,Number of Errors,Number of Warnings details are updated once the validation is completed
+
+Verify the Filename,
+Created Date,
+Period Start,
+Period End,
+Number of Records,
+Number of Errors,
+Number of Warnings details are updated once the validation is completed
 
 
 3 records
@@ -56,11 +63,15 @@ test('test', async ({ page }) => {
   await page.getByRole('button', { name: 'ABS-EE Deal Home' }).click();
   await page.getByRole('row', { name: '548678 ar 29489 09-30-2024 01' }).getByRole('link').click();
   await page.getByRole('button', { name: 'Perform Validation' }).click();
+
   await page.getByRole('status').click();
   await page.getByText('InProgress : 35% complete,').click();
+
+
   await page.getByText('Execution Status').click();
   await page.getByText('ABS-EE Validation completed').click();
   await page.getByText('CompletedSuccessfully :').click();
+
   await page.locator('span').filter({ hasText: 'Validation Results' }).click();
   await page.getByText('Filename:').click();
   await page.getByText('ValidationResults.xlsx').click();
@@ -77,3 +88,7 @@ test('test', async ({ page }) => {
   await page.getByText('Number of Warnings:').click();
   await page.getByText('0', { exact: true }).nth(1).click();
 });
+
+
+
+----------------------------------------------------------------
