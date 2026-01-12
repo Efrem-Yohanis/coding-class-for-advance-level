@@ -1,31 +1,3 @@
-Name
-
-Test Case 415045: Verify that 'Convert to PDF' button in the submission proof is enabled
-
-
-Manual test case - Steps and Expected Results
-
-Precondition: User is logged in (shared steps 413501) and a submission proof exists (or will be created) for the ABSEE deal.
-
-Steps:
-1. Navigate to the ABS-EE Deal Home and locate the deal to test.
-   - Expected: The deal row is visible and shows actions (View, Delete).
-2. Click the "View" action for the deal and open the "Submission Proof" area.
-   - Expected: The Submission Proof section is visible with a "Create" button.
-3. Click "Create" under Submission Proof and choose Yes or No when prompted to include EX-102.
-   - Expected: A confirmation dialog appears: "Do you want to include the contents of the EX-102 file in the submission proof?".
-4. Wait for the Submission Proof to complete (Execution Status).
-   - Expected: Execution Status shows "Submission Proof completed" and "CompletedSuccessfully".
-5. Verify the "Convert to PDF" button is enabled and clickable.
-   - Expected: Clicking "Convert to PDF" starts a conversion and Execution Status eventually shows "Pdf Convert completed" and "CompletedSuccessfully".
-
-Notes:
-- Allow sufficient timeout for PDF conversion (e.g., 60–120s).
-- Avoid repeating shared login steps in this test to prevent duplicate sessions.
-
-
-Record
-
 const { test, expect } = require('@playwright/test');
 const testData = require('./testData.json');
 
@@ -39,7 +11,7 @@ test('415045 - Convert to PDF triggers completion', async ({ page }) => {
   const periodEnd = data.periodEnd || '09-30-2024';
   const rowRegex = new RegExp(`${jobNumber} ${dealName} ${periodEnd}`);
 
-  // LOGIN (mandatory)
+  // ---------- 1. LOGIN (mandatory) ----------
   await page.goto('https://13f-qa.azurewebsites.net/deals');
   await page.getByRole('button', { name: 'Sign in with DFIN Account' }).click();
   await page.getByRole('textbox', { name: 'Email address' }).fill(process.env.TEST_USER_EMAIL || 'test@local');
@@ -51,6 +23,7 @@ test('415045 - Convert to PDF triggers completion', async ({ page }) => {
   const mfaOption = page.getByRole('button', { name: 'Approve a request on my Microsoft Authenticator app' });
   if (await mfaOption.isVisible({ timeout: 5000 })) {
     await mfaOption.click();
+    console.log('Approve the MFA request on your mobile device...');
     await page.waitForTimeout(20000);
   }
 
@@ -60,12 +33,11 @@ test('415045 - Convert to PDF triggers completion', async ({ page }) => {
     await staySignedInNo.click();
   }
 
-  // Open deal
+  // ---------- 2. Open deal and create Submission Proof (No flow) ----------
   await page.getByRole('button', { name: 'ABS-EE Deal Home' }).click();
   await expect(page.getByRole('row', { name: rowRegex })).toBeVisible({ timeout: 30_000 });
   await page.getByRole('row', { name: rowRegex }).getByRole('link', { name: /view|open/i }).click();
 
-  // Create Submission Proof (No flow) if needed
   await page.getByText('Submission Proof').click();
   const createBtn = page.getByRole('button', { name: 'Create' });
   if (await createBtn.isVisible({ timeout: 5000 })) {
@@ -73,15 +45,18 @@ test('415045 - Convert to PDF triggers completion', async ({ page }) => {
     await expect(page.getByText(/Do you want to include the contents of the EX-102 file/i)).toBeVisible();
     await page.getByRole('button', { name: 'No' }).click();
   }
+
+  // Wait for Submission Proof to complete
   await page.getByText('Execution Status').click();
   await expect(page.getByText(/Submission Proof completed/i)).toBeVisible({ timeout: 120_000 });
   await expect(page.getByText(/CompletedSuccessfully/i)).toBeVisible({ timeout: 120_000 });
 
-  // Convert to PDF and assert success
+  // ---------- 3. Convert to PDF and assert completion ----------
   const convertBtn = page.getByRole('button', { name: 'Convert to PDF' });
   await expect(convertBtn).toBeEnabled({ timeout: 30_000 });
   await convertBtn.click();
 
+  // Wait for PDF conversion to finish
   await page.getByText('Execution Status').click();
   await expect(page.getByText(/Pdf Convert completed/i)).toBeVisible({ timeout: 120_000 });
   await expect(page.getByText(/CompletedSuccessfully/i)).toBeVisible({ timeout: 120_000 });

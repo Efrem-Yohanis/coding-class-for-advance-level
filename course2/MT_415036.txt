@@ -1,181 +1,68 @@
 1. test name 
 415036	Test Case	Verify user able to create new  ABSEE deal			
-2. maual test case
+Manual test case - Steps and Expected Results
 
-ID	Work Item Type	Title	Test Step	Step Action	Step Expected	Area Path	Assigned To	State
-415036	Test Case	Verify user able to create new  ABSEE deal				
-			1	Shared steps 413501: Login into AB2 site				
-			2	Click on ABSEE Deal icon	Verify user navigates to the ABSEE Deal Home landing page			
-			3	Select the Company from the dropdown	Verify user is able to select values from the Company dropdown			
-			4	Click on the Create New Deal button	"Verify Filing Details dropdown opens and contains below fields  and buttons
-Job Number,Deal Name,Period End Date,Target Filing Date,Filing Type,ABS Scheme Type,Create,Clone,Cancel"			
-			5	Enter all the details in the Filing Details section	Verify user is able to enter the details and click on the create button			
-			6	Click on 'Create' 	Verify ABSEE Deal is created successfully and the new deal is available in the home deal table			
-			7	Go to the newly created ABSEE deal which is in the list	Verify the new deal is available with details and View and Delete button are also available			
-			8	Click on 'View' to access the newly created deal	Verify View button is accessible and clickable to user			
-			9	Check ABSEE deal details page opens	Verify user successfully navigates to ABSEE Deal details page			
-			10	Click on 'Upload' and select any ABSEE input zip file	Verify Upload is successful and input files list is available			
+Precondition: User is logged in (shared steps 413501) and has access to the ABS-EE Deal Home page.
 
-3. recoreds: 
+Steps:
+1. Click the ABSEE Deal icon to go to the ABS-EE Deal Home landing page.
+   - Expected: ABS-EE Deal Home opens.
+2. Select the Company from the Company dropdown.
+   - Expected: The Company value is selected.
+3. Click the "Create New Deal" button.
+   - Expected: The "Filings Details" form opens and contains: Job Number, Deal Name, Period End Date, Target Filing Date, Filing Type, ABS Schema Type, Create, Clone, Cancel.
+4. Fill in the Filing Details (Job Number, Deal Name, Period End Date, Target Filing Date, Filing Type, ABS Schema Type) and click "Create".
+   - Expected: The deal is created and appears in the home deal table.
+5. Locate the newly created deal in the list and click "View".
+   - Expected: The deal row shows details and actions (View, Delete) and the ABSEE Deal details page opens.
+6. On the deal details page, click "Upload" and select an ABSEE input zip file.
+   - Expected: Upload is accepted, the file appears in the upload queue, and the Execution Status shows completion (e.g., "CompletedSuccessfully").
+
+Notes:
+- Avoid repeating login steps in this test to prevent duplicate sessions.
+- When waiting for uploads/processing, allow a generous timeout (e.g., 2 minutes) as background tasks may take time.
+
+3. records:
 
 import { test, expect } from '@playwright/test';
 
-test('test', async ({ page }) => {
-  await page.locator('body').click();
-  await page.goto('xxxx');
-  await page.getByRole('button', { name: 'Sign in with DFIN Account' }).click();
-  await page.getByRole('textbox', { name: 'Email address' }).click();
-  await page.getByRole('textbox', { name: 'Email address' }).fill(' xxxxx');
-  await page.getByRole('button', { name: 'Continue' }).click();
-  await page.locator('.pagination-view > div > div:nth-child(3)').click();
-  await page.getByRole('textbox', { name: 'Enter the password for' }).click();
-  await page.getByRole('textbox', { name: 'Enter the password for' }).press('CapsLock');
-  await page.getByRole('textbox', { name: 'Enter the password for' }).fill('A');
-  await page.getByRole('textbox', { name: 'Enter the password for' }).press('CapsLock');
-  await page.getByRole('textbox', { name: 'Enter the password for' }).fill('xxxx');
-  await page.getByRole('button', { name: 'Sign in' }).click();
-  await page.goto('https://13f-qa.azurewebsites.net/deals');
-  await page.getByRole('button', { name: 'ABS-EE Deal Home' }).click();
-  await page.getByRole('button', { name: 'Create New Deal' }).click();
-  await page.getByText('Filings Details').click();
-  await page.locator('form').getByText('Job Number').click();
-  await page.locator('form').getByText('Job Number').click();
-  await page.getByRole('textbox', { name: 'Job Number' }).fill('444');
-  await page.getByText('Deal Name*').click();
-  await page.getByText('Deal Name*').click();
-  await page.getByRole('textbox', { name: 'Deal Name*' }).fill('automation 111');
-  await page.getByRole('textbox', { name: 'Period End Date*' }).click();
-  await page.getByRole('textbox', { name: 'Period End Date*' }).fill('09-30-2024');
-  await page.getByText('Period End Date*September').click();
-  await page.getByRole('textbox', { name: 'Period End Date*' }).click();
-  await page.getByText('Period End Date*').click();
-  await page.getByRole('textbox', { name: 'Period End Date*' }).click();
-  await page.getByText('Period End Date*Previous').click();
-  await page.getByText('Target Filing Date*').click();
-  await page.getByRole('option', { name: 'Choose Sunday, January 11th,' }).click();
-  await page.getByText('Filing Type*').click();
-  await page.getByText('Filing Type*').click();
-  await page.getByText('ABS Schema Type*').dblclick();
-  await page.getByText('ABS Schema Type*').click();
-  await page.getByText('ABS Schema Type*').click();
-  await page.getByText('ABS Schema Type*').click();
-  await page.getByLabel('ABS Schema Type*').selectOption('2');
-  await page.getByRole('button', { name: 'Create', exact: true }).click();
-  await page.getByRole('cell', { name: '444' }).click();
-  await page.getByRole('cell', { name: 'automation' }).click();
-  await page.locator('div').filter({ hasText: 'Job NumberDeal NameNumber Of' }).nth(5).click();
-  await page.getByRole('columnheader', { name: 'Deal Name sort asc' }).click();
-  await page.getByRole('columnheader', { name: 'Deal Name sort desc' }).click();
-  await page.getByRole('columnheader', { name: 'Deal Name sort desc' }).click();
-  await page.getByRole('columnheader', { name: 'Deal Name sort asc' }).locator('span').click();
-  await page.getByRole('columnheader', { name: 'Deal Name sort desc' }).click();
-  await page.getByRole('columnheader', { name: 'Deal Name sort desc' }).click();
-  await page.getByRole('columnheader', { name: 'Deal Name sort desc' }).click();
-  await page.getByRole('columnheader', { name: 'Deal Name sort asc' }).locator('span').click();
-  await page.getByText('ABS-EE Deal HomeEDGAR').click();
-  await page.getByRole('row', { name: '444 automation 111 09-30-2024' }).getByRole('link').click();
-  await page.getByText('FILE UPLOAD DETAILS').click();
-  await page.getByText('Job Number').click();
-  await page.getByRole('textbox').first().click();
-  await page.getByText('Deal Name*').click();
-  await page.getByRole('textbox').nth(1).click();
-  await page.getByText('Period End Date*').click();
-  await page.getByRole('textbox').nth(2).click();
-  await page.getByText('Target Filing Date*').click();
-  await page.getByRole('textbox').nth(3).click();
-  await page.getByText('Submission Type*').click();
-  await page.getByText('ABS Schema Type*').click();
-  await page.getByRole('heading', { name: 'Files' }).click();
-  await page.getByRole('button', { name: 'Upload' }).click();
-  await page.getByRole('button', { name: 'Upload' }).setInputFiles(zip files);
-  await page.getByText('File upload queue').click();
-  await page.getByText('Execution Status').click();
-  await page.getByText('Upload File(s) processing').click();
-  await page.getByText('CompletedSuccessfully :').click();
-  await page.getByText('Upload File(s) processing').click();
-  await page.getByText('Execution Status').click();
-  await page.getByText('Upload File(s) processing').click();
-  await page.getByText('CompletedSuccessfully :').click();
-});====================================================import { test, expect } from '@playwright/test';
+test('415036 - Create and upload ABSEE deal', async ({ page }) => {
+  const jobNumber = '444';
+  const dealName = 'automation 111';
+  const periodEnd = '09-30-2024';
+  const uploadFilePath = 'path/to/absee_input.zip'; // replace with a real path or fixture
 
-test('test', async ({ page }) => {
-  await page.locator('body').click();
-  await page.goto('xxxx');
-  await page.getByRole('button', { name: 'Sign in with DFIN Account' }).click();
-  await page.getByRole('textbox', { name: 'Email address' }).click();
-  await page.getByRole('textbox', { name: 'Email address' }).fill(' xxxxx');
-  await page.getByRole('button', { name: 'Continue' }).click();
-  await page.locator('.pagination-view > div > div:nth-child(3)').click();
-  await page.getByRole('textbox', { name: 'Enter the password for' }).click();
-  await page.getByRole('textbox', { name: 'Enter the password for' }).press('CapsLock');
-  await page.getByRole('textbox', { name: 'Enter the password for' }).fill('A');
-  await page.getByRole('textbox', { name: 'Enter the password for' }).press('CapsLock');
-  await page.getByRole('textbox', { name: 'Enter the password for' }).fill('xxxx');
-  await page.getByRole('button', { name: 'Sign in' }).click();
+  // Navigate to Deals home (assumes user is already logged in via shared steps)
   await page.goto('https://13f-qa.azurewebsites.net/deals');
   await page.getByRole('button', { name: 'ABS-EE Deal Home' }).click();
+  await expect(page.getByRole('heading', { name: 'ABS-EE Deal Home' })).toBeVisible();
+
+  // Create new deal
   await page.getByRole('button', { name: 'Create New Deal' }).click();
-  await page.getByText('Filings Details').click();
-  await page.locator('form').getByText('Job Number').click();
-  await page.locator('form').getByText('Job Number').click();
-  await page.getByRole('textbox', { name: 'Job Number' }).fill('444');
-  await page.getByText('Deal Name*').click();
-  await page.getByText('Deal Name*').click();
-  await page.getByRole('textbox', { name: 'Deal Name*' }).fill('automation 111');
-  await page.getByRole('textbox', { name: 'Period End Date*' }).click();
-  await page.getByRole('textbox', { name: 'Period End Date*' }).fill('09-30-2024');
-  await page.getByText('Period End Date*September').click();
-  await page.getByRole('textbox', { name: 'Period End Date*' }).click();
-  await page.getByText('Period End Date*').click();
-  await page.getByRole('textbox', { name: 'Period End Date*' }).click();
-  await page.getByText('Period End Date*Previous').click();
-  await page.getByText('Target Filing Date*').click();
-  await page.getByRole('option', { name: 'Choose Sunday, January 11th,' }).click();
-  await page.getByText('Filing Type*').click();
-  await page.getByText('Filing Type*').click();
-  await page.getByText('ABS Schema Type*').dblclick();
-  await page.getByText('ABS Schema Type*').click();
-  await page.getByText('ABS Schema Type*').click();
-  await page.getByText('ABS Schema Type*').click();
+  await expect(page.getByText('Filings Details')).toBeVisible();
+  await page.getByRole('textbox', { name: 'Job Number' }).fill(jobNumber);
+  await page.getByRole('textbox', { name: 'Deal Name*' }).fill(dealName);
+  await page.getByRole('textbox', { name: 'Period End Date*' }).fill(periodEnd);
   await page.getByLabel('ABS Schema Type*').selectOption('2');
   await page.getByRole('button', { name: 'Create', exact: true }).click();
-  await page.getByRole('cell', { name: '444' }).click();
-  await page.getByRole('cell', { name: 'automation' }).click();
-  await page.locator('div').filter({ hasText: 'Job NumberDeal NameNumber Of' }).nth(5).click();
-  await page.getByRole('columnheader', { name: 'Deal Name sort asc' }).click();
-  await page.getByRole('columnheader', { name: 'Deal Name sort desc' }).click();
-  await page.getByRole('columnheader', { name: 'Deal Name sort desc' }).click();
-  await page.getByRole('columnheader', { name: 'Deal Name sort asc' }).locator('span').click();
-  await page.getByRole('columnheader', { name: 'Deal Name sort desc' }).click();
-  await page.getByRole('columnheader', { name: 'Deal Name sort desc' }).click();
-  await page.getByRole('columnheader', { name: 'Deal Name sort desc' }).click();
-  await page.getByRole('columnheader', { name: 'Deal Name sort asc' }).locator('span').click();
-  await page.getByText('ABS-EE Deal HomeEDGAR').click();
-  await page.getByRole('row', { name: '444 automation 111 09-30-2024' }).getByRole('link').click();
-  await page.getByText('FILE UPLOAD DETAILS').click();
-  await page.getByText('Job Number').click();
-  await page.getByRole('textbox').first().click();
-  await page.getByText('Deal Name*').click();
-  await page.getByRole('textbox').nth(1).click();
-  await page.getByText('Period End Date*').click();
-  await page.getByRole('textbox').nth(2).click();
-  await page.getByText('Target Filing Date*').click();
-  await page.getByRole('textbox').nth(3).click();
-  await page.getByText('Submission Type*').click();
-  await page.getByText('ABS Schema Type*').click();
-  await page.getByRole('heading', { name: 'Files' }).click();
-  await page.getByRole('button', { name: 'Upload' }).click();
-  await page.getByRole('button', { name: 'Upload' }).setInputFiles(zip files);
-  await page.getByText('File upload queue').click();
+
+  // Verify deal is present in the table
+  await expect(page.getByRole('row', { name: new RegExp(`${jobNumber} ${dealName} ${periodEnd}`) })).toBeVisible({ timeout: 30_000 });
+
+  // Open deal details
+  await page.getByRole('row', { name: new RegExp(`${jobNumber} ${dealName} ${periodEnd}`) }).getByRole('link', { name: /view/i }).click();
+  await expect(page.getByRole('heading', { name: /FILE UPLOAD DETAILS|Files/i })).toBeVisible();
+
+  // Upload file
+  const uploadButton = page.getByRole('button', { name: 'Upload' });
+  await expect(uploadButton).toBeVisible();
+  await uploadButton.setInputFiles(uploadFilePath);
+
+  // Wait for processing to complete
   await page.getByText('Execution Status').click();
-  await page.getByText('Upload File(s) processing').click();
-  await page.getByText('CompletedSuccessfully :').click();
-  await page.getByText('Upload File(s) processing').click();
-  await page.getByText('Execution Status').click();
-  await page.getByText('Upload File(s) processing').click();
-  await page.getByText('CompletedSuccessfully :').click();
+  await expect(page.getByText(/CompletedSuccessfully/i)).toBeVisible({ timeout: 120_000 });
+
+  // Optionally, assert the uploaded file appears in the queue
+  await expect(page.getByText(/File upload queue|Uploaded/i)).toBeVisible({ timeout: 30_000 });
 });
-==============================================================================================================
 
-
-test_case_2

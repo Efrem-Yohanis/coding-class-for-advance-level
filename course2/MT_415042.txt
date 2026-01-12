@@ -1,37 +1,58 @@
 name
 Test Case 415042: Verify the File Name and Created Date for created submission proof
 
-Manual test case
-415042	Test Case	Verify the File Name and Created Date for created submission proof				
-			1	Shared steps 413501: Login into AB2 site				
-			2	Go to newly created and uploaded ABSEE deal	Verify the new deal is available with details and View and Delete button are also available			
-			3	Click on Create button under Submission Proof	Verify a popup "Do you want to include the contents of the Ex-102 file in the submission proof?" is displayed			
-			4	Check for the FileName 	Verify the submission proof filename is updated next to the FileName fieldand the filename should match the jobnumber			
-			5	Check for the submission proof created date	Verify the submission proof  
-      Created Date along with the timestamp is updated next to the Created Date field			
+Manual test case - Steps and Expected Results
+
+Precondition: User is logged in (shared steps 413501) and a submission proof will be created for an existing, uploaded ABSEE deal.
+
+Steps:
+1. Navigate to the ABS-EE Deal Home and locate the deal to test.
+   - Expected: The deal row is visible and shows actions (View, Delete).
+2. Click the "View" action for the deal.
+   - Expected: The deal details page opens and the "Submission Proof" section/button is visible.
+3. Click "Create" under Submission Proof and choose an option when prompted.
+   - Expected: A confirmation dialog displays: "Do you want to include the contents of the EX-102 file in the submission proof?" with Yes and No options.
+4. Choose "No" (create without EX-102).
+   - Expected: The Execution Status tab shows "Submission Proof completed" and "CompletedSuccessfully" when finished.
+5. Verify the File Name and Created Date for the created submission proof.
+   - Expected: Filename is present and contains the job number (e.g., "<jobNumber>.html") and Created Date is visible with a timestamp.
+
+Notes:
+- Allow sufficient timeout for processing (e.g., 60–120s).
+- Repeat the flow with "Yes" if you want to validate inclusion of EX-102 content.
 
 records
 
 import { test, expect } from '@playwright/test';
 
-test('test', async ({ page }) => {
-  await page.goto('https://13f-qa.azurewebsites.net/');
-  await page.getByRole('button', { name: 'Sign in with DFIN Account' }).click();
+test('415042 - Verify File Name and Created Date for submission proof', async ({ page }) => {
+  const jobNumber = '99';
+  const dealRow = new RegExp(`${jobNumber} submission proof to be`);
+
+  // Navigate to Deals home (assumes shared login is handled separately)
+  await page.goto('https://13f-qa.azurewebsites.net/deals');
   await page.getByRole('button', { name: 'ABS-EE Deal Home' }).click();
-  await page.getByRole('heading', { name: 'ABS-EE Deal Home' }).click();
-  await page.getByRole('columnheader', { name: 'Deal Name sort asc' }).locator('span').click();
-  await page.getByRole('link', { name: '2' }).click();
-  await page.getByRole('link', { name: '1' }).click();
-  await page.getByRole('columnheader', { name: 'Deal Name sort desc' }).locator('span').click();
-  await page.getByRole('columnheader', { name: 'Deal Name sort desc' }).locator('span').click();
-  await page.getByRole('columnheader', { name: 'Deal Name sort desc' }).locator('span').click();
-  await page.getByRole('columnheader', { name: 'Deal Name sort asc' }).locator('span').click();
-  await page.getByRole('row', { name: '99 submission proof to be' }).getByRole('link').click();
+  await expect(page.getByRole('heading', { name: 'ABS-EE Deal Home' })).toBeVisible();
+
+  // Open the deal
+  await page.getByRole('row', { name: dealRow }).getByRole('link', { name: /view|open/i }).click();
+
+  // Create submission proof (No flow)
   await page.getByText('Submission Proof').click();
   await page.getByRole('button', { name: 'Create' }).click();
+  await expect(page.getByText(/Do you want to include the contents of the EX-102 file/i)).toBeVisible();
   await page.getByRole('button', { name: 'No' }).click();
-  await page.getByText('File Name:').click();
-  await page.getByText('99.html').click();
-  await page.getByText('Created Date:').nth(1).click();
-  await page.getByText('-11-2026, 5:00:24 PM EST').click();
+
+  // Wait for processing to complete and verify results
+  await page.getByText('Execution Status').click();
+  await expect(page.getByText(/Submission Proof completed/i)).toBeVisible({ timeout: 120_000 });
+  await expect(page.getByText(/CompletedSuccessfully/i)).toBeVisible();
+
+  // Verify filename contains job number and appropriate extension
+  await expect(page.getByText(/File Name:/i)).toBeVisible();
+  await expect(page.getByText(new RegExp(`${jobNumber}.*\.html`, 'i'))).toBeVisible();
+
+  // Verify Created Date is present and includes a year/timestamp
+  await expect(page.getByText(/Created Date:/i)).toBeVisible();
+  await expect(page.getByText(/Created Date:.*\d{4}/)).toBeVisible();
 });

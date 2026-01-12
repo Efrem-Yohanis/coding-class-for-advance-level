@@ -48,45 +48,44 @@ Number of Warnings details are updated once the validation is completed
 
 import { test, expect } from '@playwright/test';
 
-test('test', async ({ page }) => {
-  await page.goto('https://13f-qa.azurewebsites.net/');
-  await page.getByRole('button', { name: 'Sign in with DFIN Account' }).click();
-  await page.getByRole('textbox', { name: 'Email address' }).click();
-  await page.getByRole('textbox', { name: 'Email address' }).fill('biniyam.a.gebeyehu@dfinsolutions.com');
-  await page.getByRole('button', { name: 'Continue' }).click();
-  await page.locator('#i0118').press('CapsLock');
-  await page.getByRole('textbox', { name: 'Enter the password for' }).fill('A');
-  await page.getByRole('textbox', { name: 'Enter the password for' }).press('CapsLock');
-  await page.getByRole('textbox', { name: 'Enter the password for' }).fill('Alem123123*');
-  await page.getByRole('button', { name: 'Sign in' }).click();
-  await page.goto('https://13f-qa.azurewebsites.net/deals');
-  await page.getByRole('button', { name: 'ABS-EE Deal Home' }).click();
-  await page.getByRole('row', { name: '548678 ar 29489 09-30-2024 01' }).getByRole('link').click();
-  await page.getByRole('button', { name: 'Perform Validation' }).click();
+test('415038 - Verify validation results for ABS-EE deal', async ({ page }) => {
+  const dealRowName = '548678 ar 29489 09-30-2024 01';
 
-  await page.getByRole('status').click();
-  await page.getByText('InProgress : 35% complete,').click();
+  // Go to Deals home (assumes shared login steps are completed separately)
+  await page.goto('https://13f-qa.azurewebsites.net/deals');
+  await page.getByRole('button', { name: 'ABS-EE Deal Home' }).click();
+  await expect(page.getByRole('heading', { name: 'ABS-EE Deal Home' })).toBeVisible();
 
+  // Open deal details
+  await page.getByRole('row', { name: dealRowName }).getByRole('link', { name: /view/i }).click();
+  await expect(page.getByRole('button', { name: 'Perform Validation' })).toBeVisible();
 
-  await page.getByText('Execution Status').click();
-  await page.getByText('ABS-EE Validation completed').click();
-  await page.getByText('CompletedSuccessfully :').click();
+  // Start validation and select pair
+  await page.getByRole('button', { name: 'Perform Validation' }).click();
+  await expect(page.getByText('Select pair for validation')).toBeVisible();
+  await page.getByRole('radio').first().check();
+  await page.getByRole('button', { name: /ok|confirm/i }).click();
 
-  await page.locator('span').filter({ hasText: 'Validation Results' }).click();
-  await page.getByText('Filename:').click();
-  await page.getByText('ValidationResults.xlsx').click();
-  await page.locator('span').filter({ hasText: /^Created Date:$/ }).click();
-  await page.locator('span').filter({ hasText: '-11-2026, 1:45:11 PM EST' }).click();
-  await page.getByText('Period Start:').click();
-  await page.getByText('08-01-').click();
-  await page.getByText('Period End:').click();
-  await page.getByText('09-30-').click();
-  await page.getByText('Number of Records:').click();
-  await page.getByText('29489').click();
-  await page.getByText('Number of Errors:').click();
-  await page.getByText('0', { exact: true }).first().click();
-  await page.getByText('Number of Warnings:').click();
-  await page.getByText('0', { exact: true }).nth(1).click();
+  // Wait for completion
+  await page.getByText('Execution Status').click();
+  await expect(page.getByText(/ABS-EE Validation completed/i)).toBeVisible({ timeout: 60_000 });
+  await expect(page.getByText(/CompletedSuccessfully/i)).toBeVisible({ timeout: 60_000 });
+
+  // Open Validation Results and validate fields
+  await page.locator('span').filter({ hasText: 'Validation Results' }).click();
+  await expect(page.getByText(/Filename:/i)).toBeVisible();
+  await expect(page.getByText(/ValidationResults.*\.xlsx/i)).toBeVisible();
+  await expect(page.getByText(/Created Date:/i)).toBeVisible();
+  await expect(page.getByText(/Period Start:/i)).toBeVisible();
+  await expect(page.getByText(/Period End:/i)).toBeVisible();
+  await expect(page.getByText(/Number of Records:/i)).toBeVisible();
+  await expect(page.getByText(/Number of Errors:/i)).toBeVisible();
+  await expect(page.getByText(/Number of Warnings:/i)).toBeVisible();
+
+  // Verify numeric result values when known
+  await expect(page.getByText(/Number of Records:\s*29489/)).toBeVisible();
+  await expect(page.getByText(/Number of Errors:\s*0/)).toBeVisible();
+  await expect(page.getByText(/Number of Warnings:\s*0/)).toBeVisible();
 });
 
 

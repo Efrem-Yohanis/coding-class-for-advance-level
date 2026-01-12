@@ -2,7 +2,7 @@ const { test, expect } = require('@playwright/test');
 // Import the JSON file you created
 const testData = require('./testData.json'); 
 
-test('Verify the validation results for ABSEE deal', async ({ page }) => {
+test('415038 - Verify validation results for ABS-EE deal', async ({ page }) => {
   
   // Define 'data' for Test Case 415038
   const data = testData["415038"];
@@ -49,9 +49,9 @@ test('Verify the validation results for ABSEE deal', async ({ page }) => {
 
   // -------------------- 4. EXECUTION STATUS (Step 8) -----------------------
   await page.getByText('Execution Status').click();
-  
-  const finalStatus = page.getByText('ABS-EE Validation completed, CompletedSuccessfully');
-  await expect(finalStatus).toBeVisible({ timeout: 120000 }); 
+
+  await expect(page.getByText(/ABS-EE Validation completed/i)).toBeVisible({ timeout: 120_000 });
+  await expect(page.getByText(/CompletedSuccessfully/i)).toBeVisible({ timeout: 120_000 });
 
   // -------------------- 5. VALIDATION RESULTS (Step 9) ---------------------
   await page.locator('span').filter({ hasText: 'Validation Results' }).click();

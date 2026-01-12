@@ -6,18 +6,23 @@ Name
 Test Case 415052: Verify the result for the Create Submission and Download button
 
 
-Manual test case
+Manual test case - Steps and Expected Results
 
-415052	Test Case	Verify the result for the Create Submission and Download button				
-			1	Shared steps 413501: Login into AB2 site				
-			2	Click on ABSEE Deal icon	Verify user navigates to the ABSEE Deal Home landing page			
-			3	Go to newly created and uploaded ABSEE deal	Verify the new deal is available with details and View and Delete button are also available			
-			4	Click on 'View' button	Verify View button is accessible and clickable to user			
-			5	Check for the Submit Filing button 	Verify Submit Filing buttton is available and clicked			
-			6	Check Submit Files button is available and clickable	Verify Submit FIles button is enabled and Final Confirmation pages opens once user clicks the Submit Files button			
-			7	Check for the Create Submission and Download button on the Final Confirmation page	Verify Create Submission and Download button is enabled by default and clickable for user			
-			8	Check the execution status once user clicks the Create Submission and Download button	Verify the execution status transition from InProgress to Completed			
-			9	Check once status is completed Result Submission zip folder with xml file is downloaded	Verify the downloaded ResltSubmission.zip folder contains .xml file and content matches 			
+Precondition: User is logged in (shared steps 413501) and the deal has required SEC information and files to submit.
+
+Steps:
+1. Navigate to ABS-EE Deal Home and open the target deal.
+   - Expected: Deal row is visible and actions (View, Delete) are present.
+2. Click "Submit Filing" and then "Submit Files" to reach Final Confirmation.
+   - Expected: Final Confirmation page loads with heading "Final Confirmation".
+3. Click "Create Submission and Download".
+   - Expected: Execution Status shows submission starts (InProgress) and eventually transitions to CompletedSuccessfully.
+4. Wait for the download to be triggered when the submission completes.
+   - Expected: A file is downloaded whose suggested filename matches /ResultSubmission.*\.zip/i and the ZIP contains one or more .xml files whose contents match expectations.
+
+Notes:
+- Allow a long timeout for submission processing (e.g., 120s).
+- Parameterize filenames and deal selectors for CI; optionally save and extract the ZIP to validate XML contents.
 		
 
 
@@ -27,159 +32,42 @@ Record
 
 import { test, expect } from '@playwright/test';
 
-test('test', async ({ page }) => {
-  await page.goto('https://13f-qa.azurewebsites.net/');
-  await page.getByRole('button', { name: 'Sign in with DFIN Account' }).click();
-  await page.getByRole('button', { name: 'ABS-EE Deal Home' }).click();
-  await page.getByRole('heading', { name: 'ABS-EE Deal Home' }).click();
-  await page.getByRole('columnheader', { name: 'Deal Name sort asc' }).locator('span').click();
-  await page.getByRole('link', { name: '2' }).click();
-  await page.getByRole('link', { name: '1' }).click();
-  await page.getByRole('columnheader', { name: 'Deal Name sort desc' }).locator('span').click();
-  await page.getByRole('columnheader', { name: 'Deal Name sort asc' }).locator('span').click();
-  await page.getByRole('row', { name: 'Testing job' }).getByRole('link').click();
-  await page.getByText('Submission Proof').click();
-  await page.getByRole('button', { name: 'Create' }).click();
-  await page.getByRole('button', { name: 'No' }).click();
-  await page.getByText('File Name:').click();
-  await page.getByText('99.html').click();
-  await page.getByText('Created Date:').nth(1).click();
-  await page.getByText('-11-2026, 5:00:24 PM EST').click();
-  await page.getByRole('button', { name: 'Create' }).click();
-  await page.getByRole('button', { name: 'Yes' }).click();
-  await page.getByText('Execution Status').click();
-  await page.getByText('Submission Proof completed').click();
-  await page.getByText('CompletedSuccessfully :').click();
-  await page.getByRole('button', { name: 'View', exact: true }).click();
-  const downloadPromise = page.waitForEvent('download');
-  await page.getByRole('button', { name: 'Download', exact: true }).click();
-  const download = await downloadPromise;
-  await page.getByRole('button', { name: 'Convert to PDF' }).click();
-  await page.getByText('Execution Status').click();
-  await page.getByText('Pdf Convert completed').click();
-  await page.getByText('CompletedSuccessfully :').click();
-  const download2Promise = page.waitForEvent('download');
-  await page.getByRole('button', { name: 'Download PDF' }).click();
-  const download2 = await download2Promise;
-  const download3Promise = page.waitForEvent('download');
-  await page.getByRole('button', { name: 'Download PDF' }).click();
-  const download3 = await download3Promise;
-  await page.getByRole('button', { name: 'ABS-EE Deal Home' }).click();
-  await page.getByRole('heading', { name: 'ABS-EE Deal Home' }).click();
-  await page.getByRole('columnheader', { name: 'Deal Name sort asc' }).click();
-  await page.getByRole('link', { name: '2' }).click();
-  await page.getByRole('link', { name: '1' }).click();
-  await page.getByRole('columnheader', { name: 'Deal Name sort desc' }).click();
-  await page.getByRole('columnheader', { name: 'Deal Name sort asc' }).click();
-  await page.getByRole('row', { name: '99 submission proof to be' }).getByRole('link').click();
-  await page.getByRole('link', { name: 'SEC' }).click();
-  await page.getByText('Submission Contact').click();
-  await page.locator('div').filter({ hasText: /^Name$/ }).click();
-  await page.getByText('Phone Number').click();
-  await page.getByText('SROS*NONE').click();
-  await page.locator('div').filter({ hasText: /^NONE$/ }).nth(1).click();
-  await page.getByText('Submission Information').click();
-  await page.getByText('Filer CIK*').click();
-  await page.getByRole('spinbutton').first().click();
-  await page.getByRole('spinbutton').first().fill('0000990461');
-  await page.locator('div').filter({ hasText: /^Filer CCC\*$/ }).click();
-  await page.getByText('Filer CCC*').click();
-  await page.getByRole('textbox').nth(4).click();
-  await page.getByRole('textbox').nth(4).fill('2trains*');
-  await page.getByText('ABS-EE File Number*').click();
-  await page.getByRole('textbox').nth(5).click();
-  await page.getByRole('textbox').nth(5).fill('002-12345');
-  await page.getByText('Depositor CIK*').click();
-  await page.locator('div').filter({ hasText: /^Depositor CIK\*$/ }).click();
-  await page.getByRole('spinbutton').nth(1).fill('0000990600');
-  await page.getByText('Sponsor CIK*').click();
-  await page.getByRole('spinbutton').nth(2).click();
-  await page.getByRole('spinbutton').nth(2).fill('0000990458');
-  await page.getByText('Asset Class*').click();
-  await page.locator('div').filter({ hasText: /^Select\.\.\.$/ }).nth(2).click();
-  await page.getByText('Auto leases', { exact: true }).click();
-  await page.getByText('ABS-EE CoRegistrant').click();
-  await page.getByRole('columnheader', { name: 'Co-Reg Filer CIK' }).click();
-  await page.getByRole('columnheader', { name: 'Co-Reg Filer CCC' }).click();
-  await page.getByRole('columnheader', { name: 'Co-Reg File Number' }).click();
-  await page.getByText('Notification Emails').click();
-  await page.getByText('Email Address').first().click();
-  await page.locator('input[type="email"]').first().click();
-  await page.locator('input[type="email"]').first().fill('xxxx.com');
-  await page.getByRole('button', { name: 'Save' }).click();
-  await page.locator('.react-datepicker-ignore-onclickoutside').click();
-  await page.getByText('ABS-EE Start Period*').click();
-  await page.locator('.react-datepicker__input-container > .form-control').first().click();
-  await page.locator('.react-datepicker-ignore-onclickoutside').fill('08-01-2024');
-  await page.getByText('ABS-EE End Period*').click();
-  await page.getByRole('button', { name: 'Save' }).click();
-  await page.getByText('Submission ContactNamePhone').click();
-  await page.locator('div:nth-child(2) > .react-datepicker-wrapper > .react-datepicker__input-container > .form-control').click();
-  await page.locator('.react-datepicker-ignore-onclickoutside').fill('09-30-2024');
-  await page.getByText('Depositor CIK*Sponsor CIK*').click();
-  await page.getByText('Submission ContactNamePhone').click();
-  await page.getByRole('button', { name: 'Save' }).click();
-  await page.getByText('Saved successfully').click();
-  await page.getByText('Success', { exact: true }).click();
-  await page.getByText('Saved successfully').click();
-  await page.getByRole('link', { name: 'Submit Filing' }).click();
-  await page.getByRole('heading', { name: 'Submission Details' }).click();
-  await page.getByText('Submission Details Back to').click();
-  await page.getByText('Submission Information').click();
-  await page.getByText('Filer CIK*').click();
-  await page.getByText('Filer CCC*').click();
-  await page.getByText('ABS-EE File Number').click();
-  await page.getByText('Depositor CIK').click();
-  await page.getByText('Depositor CIK').click();
-  await page.locator('div').filter({ hasText: /^Sponsor CIK$/ }).click();
-  await page.getByText('Sponsor CIK').click();
-  await page.getByText('Asset Class').click();
-  await page.getByText('Asset ClassAuto').click();
-  await page.getByText('Asset Class').click();
-  await page.getByText('Asset Class').click();
-  await page.getByText('Asset ClassAuto').click();
-  await page.getByText('ABS-EE Start Period*').click();
-  await page.getByText('ABS-EE Start Period*').click();
-  await page.locator('div').filter({ hasText: /^ABS-EE Start Period\*$/ }).click();
-  await page.getByText('ABS-EE End Period*').click();
-  await page.getByText('ABS-EE CoRegistrant').click();
-  await page.getByRole('columnheader', { name: 'Co-Reg Filer CIK' }).click();
-  await page.getByRole('cell', { name: 'No CoRegistrant added' }).click();
-  await page.getByRole('columnheader', { name: 'Co-Reg File Number' }).click();
-  await page.getByText('Files to Submit').click();
-  await page.getByRole('cell', { name: 'lease24babsee.htm' }).click();
-  await page.getByRole('cell', { name: 'lease24babsee.htm' }).click();
-  await page.getByRole('cell', { name: 'lease24bex102.xml' }).click();
-  await page.getByRole('cell', { name: 'lease24bex103.xml' }).click();
-  await page.getByRole('columnheader', { name: 'File Name' }).click();
-  await page.getByRole('cell', { name: 'lease24babsee.htm' }).click();
-  await page.getByRole('cell', { name: 'lease24bex102.xml' }).click();
-  await page.getByRole('cell', { name: 'lease24bex102.xml' }).click();
-  await page.getByRole('cell', { name: 'lease24bex103.xml' }).click();
-  await page.getByRole('link', { name: 'Submit Files' }).click();
-  await page.getByRole('heading', { name: 'Final Confirmation' }).click();
-  await page.getByRole('heading', { name: 'Final Confirmation' }).click();
-  await page.getByText('Final Confirmation Back to').click();
-  await page.getByText('Final Confirmation Back to').click();
-  await page.getByText('Final Confirmation Back to').click();
-  await page.getByText('Deal Name:').click();
-  await page.getByText('Schedule Filing').click();
-  await page.getByRole('button', { name: 'No' }).click();
-  await page.getByText('SUBMITTED FILES').click();
-  await page.getByText('FlagsConfirming Copy FlagOverride Internet FlagSerial Flag').click();
-  await page.getByText('Flags').click();
-  await page.getByText('Notification Email Address').click();
-  await page.getByText('Accession Number').click();
-  await page.getByText('Execution Status').click();
-  await page.getByRole('button', { name: 'Create Submission and Download' }).click();
-  await page.getByText('Execution Status').click();
-  await page.getByText('InProgress : Start Submission').click();
-  const download4Promise = page.waitForEvent('download');
-  await page.getByText('Execution Status').click();
-  const download4 = await download4Promise;
-  await page.getByText('Execution Status').click();
-  await page.getByText('CompletedSuccessfully :').click()
+// 415052 - Create Submission and Download
+// Cleans up the noisy recording and replaces it with clear assertions,
+// download handling, and reasonable timeouts.
 
+test('415052 - Create Submission and Download produces ResultSubmission.zip', async ({ page }) => {
+  const jobRow = /Testing job|99 submission proof to be/; // parameterize in fixtures
+
+  // Navigate to Deals home (assumes shared login fixture)
+  await page.goto('https://13f-qa.azurewebsites.net/deals');
+  await page.getByRole('button', { name: 'ABS-EE Deal Home' }).click();
+  await expect(page.getByRole('heading', { name: 'ABS-EE Deal Home' })).toBeVisible();
+
+  // Open the deal and navigate to final confirmation
+  await page.getByRole('row', { name: jobRow }).getByRole('link').click();
+  await page.getByRole('link', { name: 'Submit Filing' }).click();
+  await page.getByRole('link', { name: 'Submit Files' }).click();
+  await expect(page.getByRole('heading', { name: 'Final Confirmation' })).toBeVisible({ timeout: 30_000 });
+
+  // Create submission and wait for the download and completion status
+  const createBtn = page.getByRole('button', { name: 'Create Submission and Download' });
+  await expect(createBtn).toBeVisible();
+  await expect(createBtn).toBeEnabled();
+
+  const downloadPromise = page.waitForEvent('download');
+  await createBtn.click();
+
+  // Assert execution progresses and completes
+  await expect(page.getByText(/InProgress : Start Submission/i)).toBeVisible({ timeout: 60_000 });
+  await expect(page.getByText(/CompletedSuccessfully :/i)).toBeVisible({ timeout: 120_000 });
+
+  const download = await downloadPromise;
+  const filename = download.suggestedFilename();
+  expect(filename).toMatch(/ResultSubmission.*\.zip/i);
+
+  // Optionally: save and inspect zip contents in CI
+  // await download.saveAs(`downloads/${filename}`);
 });
 
 

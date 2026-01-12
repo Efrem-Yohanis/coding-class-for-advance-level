@@ -1,5 +1,5 @@
 {
-  "TC_415038": {
+  "415038": {
     "dealName": "548678 ar 29489 09-30-2024 01",
     "expectedFileName": "ValidationResults.xlsx",
     "expectedRecords": "29489",
@@ -8,7 +8,7 @@
     "expectedErrors": "0",
     "expectedWarnings": "0"
   },
-  "TC_415039": {
+  "415039": {
     "dealName": "600123 br 15000 10-15-2025 02",
     "expectedFileName": "ValidationResults.xlsx",
     "expectedRecords": "15000",
@@ -17,36 +17,73 @@
     "expectedErrors": "0",
     "expectedWarnings": "5"
   },
-  "TC_415040": {
+  "415040": {
     "dealName": "548678 ar 29489 09-30-2024 01",
     "expectedFileName": "ValidationResults.xlsx",
     "expectedRecords": "29489",
     "periodStart": "08-01",
     "periodEnd": "09-30",
     "expectedErrors": "0",
-    "expectedWarnings": "0"
+    "expectedWarnings": "0",
+    "expectedFileNamePart": "ValidationResult"
   },
-  "TC_415041": {
+  "415041": {
     "jobNumber": "99",
     "dealName": "Submission Proof Test Deal",
     "periodEndDate": "09-30-2024",
     "targetFilingDate": "01-11-2026",
     "files": ["lease24babsee.htm", "lease24bex102.xml", "lease24bex103.xml"]
   },
-  "TC_415042": {
+  "415042": {
     "dealName": "99 submission proof to be",
     "jobNumber": "99",
     "expectedFileName": "99.html",
     "expectedYear": "2026"
   },
-  "TC_415043": {
+  "415043": {
     "dealName": "99 submission proof to be",
     "jobNumber": "99",
     "expectedFileName": "99.html",
     "expectedYear": "2026"
   },
-  "TC_415044": {
+  "415044": {
     "dealName": "99 submission proof to be",
     "expectedDownloadName": "ResultSubmission.zip"
+  },
+  "415036": {
+    "jobNumber": "444",
+    "dealName": "automation 111",
+    "periodEnd": "09-30-2024",
+    "schemaOption": 2,
+    "uploadFilePath": "./test-data/absee_input.zip"
+  },
+  "415045": {
+    "jobNumber": "99",
+    "dealName": "99 submission proof to be",
+    "periodEnd": "09-30-2024"
+  },
+  "415046": {
+    "jobNumber": "99",
+    "dealName": "99 submission proof to be",
+    "periodEnd": "09-30-2024"
+  },
+  "415048": {
+    "jobNumber": "99",
+    "dealName": "99 submission proof to be",
+    "filerCIK": "0000990461",
+    "filerCCC": "2trains*",
+    "fileNumber": "002-12345",
+    "depositorCIK": "0000990600",
+    "sponsorCIK": "0000990458"
+  },
+  "415049": {
+    "jobNumber": "99",
+    "dealName": "99 submission proof to be",
+    "filerCIK": "0000990461",
+    "filerCCC": "2trains*",
+    "fileNumber": "002-12345",
+    "depositorCIK": "0000990600",
+    "sponsorCIK": "0000990458",
+    "assetClass": "Auto leases"
   }
-}
+} 

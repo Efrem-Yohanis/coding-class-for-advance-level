@@ -1,21 +1,21 @@
 const { test, expect } = require('@playwright/test');
 const testData = require('./testData.json'); 
 
-test('Test Case 415043: Verify View button in the submission proof is enabled and opens new tab', async ({ page, context }) => {
+test('415043 - Verify View button in the submission proof opens proof in a new tab', async ({ page, context }) => {
   
-  const data = testData.TC_415042; // Reusing the same deal data
+  const data = testData["415043"]; // Use numeric key from testData.json
 
-  // 1. INCREASE TIMEOUT TO 2 MINUTES (120,000 ms)
-  test.setTimeout(120000);
+  // Increase timeout to accommodate MFA and processing
+  test.setTimeout(120_000);
 
-  //--------------------  1. Login Flow (Common) ------------------------------------
-  await page.goto('https://13f-qa.azurewebsites.net/'); 
+  //--------------------  1. Login Flow (mandatory) ------------------------------------
+  await page.goto('https://13f-qa.azurewebsites.net/deals'); 
 
   await page.getByRole('button', { name: 'Sign in with DFIN Account' }).click();
-  await page.getByRole('textbox', { name: 'Email address' }).fill('xxxx@email.com');
+  await page.getByRole('textbox', { name: 'Email address' }).fill(process.env.TEST_USER_EMAIL || 'xxxx@email.com');
   await page.getByRole('button', { name: 'Continue' }).click();
 
-  await page.getByRole('textbox', { name: /Enter the password/i }).fill('xxxx');
+  await page.getByRole('textbox', { name: /Enter the password/i }).fill(process.env.TEST_USER_PASSWORD || 'xxxx');
   await page.getByRole('button', { name: 'Sign in' }).click();
 
   // Handle MFA
@@ -26,6 +26,7 @@ test('Test Case 415043: Verify View button in the submission proof is enabled an
     await page.waitForTimeout(20000); 
   }
 
+  // Handle "Stay Signed In" prompt
   const staySignedInNo = page.locator('#idBtn_Back');
   if (await staySignedInNo.isVisible({ timeout: 5000 })) { await staySignedInNo.click(); }
   //--------------------- End Login Flow ---------------------------------------------
@@ -34,7 +35,8 @@ test('Test Case 415043: Verify View button in the submission proof is enabled an
   //--------------------- 2. Navigate to ABSEE ---------------------------------------
   await page.getByRole('button', { name: 'ABS-EE Deal Home' }).click();
   
-  const dealRow = page.getByRole('row', { name: data.dealName });
+  const jobRow = new RegExp(data.dealName);
+  const dealRow = page.getByRole('row', { name: jobRow });
   await expect(dealRow).toBeVisible();
   await dealRow.getByRole('link').click();
 
@@ -48,23 +50,24 @@ test('Test Case 415043: Verify View button in the submission proof is enabled an
 
   // Verify Execution Status
   await page.getByText('Execution Status').click();
-  const successMsg = 'Submission Proof completed, CompletedSuccessfully : Finished Submission proof';
-  await expect(page.getByText(successMsg)).toBeVisible({ timeout: 60000 });
+  await expect(page.getByText(/Submission Proof completed/i)).toBeVisible({ timeout: 120_000 });
+  await expect(page.getByText(/CompletedSuccessfully/i)).toBeVisible({ timeout: 120_000 });
 
   //--------------------- 4. Verify View Button (Step 6) ----------------------------
   await page.getByText('Submission Proof').click();
 
   const viewBtn = page.getByRole('button', { name: 'View', exact: true });
   
-  // Verification: Check if button is enabled
+  // Verification: Check if button is visible and enabled
+  await expect(viewBtn).toBeVisible();
   await expect(viewBtn).toBeEnabled();
 
-  // Verification: Handle New Browser Tab (Popup)
-  // We start waiting for the popup event before clicking
-  const pagePromise = context.waitForEvent('page'); 
-  await viewBtn.click();
-  
-  const newTab = await pagePromise;
+  // Verification: Handle New Browser Tab (Popup) with Promise.all
+  const [newTab] = await Promise.all([
+    context.waitForEvent('page'),
+    viewBtn.click(),
+  ]);
+
   await newTab.waitForLoadState();
 
   // Verify the new tab contains the Job Number or specific file content

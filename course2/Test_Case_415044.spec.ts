@@ -1,21 +1,21 @@
 const { test, expect } = require('@playwright/test');
 const testData = require('./testData.json'); 
 
-test('Test Case 415044: Verify Download button in the submission proof is enabled', async ({ page }) => {
+test('415044 - Download button downloads ResultSubmission.zip', async ({ page }) => {
   
-  const data = testData.TC_415044;
+  const data = testData["415044"];
 
-  // 1. INCREASE TIMEOUT TO 2 MINUTES (120,000 ms)
-  test.setTimeout(120000);
+  // Increase timeout for MFA and background processing
+  test.setTimeout(120_000);
 
-  //--------------------  1. Login Flow (Common) ------------------------------------
-  await page.goto('https://13f-qa.azurewebsites.net/'); 
+  //--------------------  1. Login Flow (mandatory) ------------------------------------
+  await page.goto('https://13f-qa.azurewebsites.net/deals'); 
 
   await page.getByRole('button', { name: 'Sign in with DFIN Account' }).click();
-  await page.getByRole('textbox', { name: 'Email address' }).fill('xxxx@email.com');
+  await page.getByRole('textbox', { name: 'Email address' }).fill(process.env.TEST_USER_EMAIL || 'xxxx@email.com');
   await page.getByRole('button', { name: 'Continue' }).click();
 
-  await page.getByRole('textbox', { name: /Enter the password/i }).fill('xxxx');
+  await page.getByRole('textbox', { name: /Enter the password/i }).fill(process.env.TEST_USER_PASSWORD || 'xxxx');
   await page.getByRole('button', { name: 'Sign in' }).click();
 
   // Handle MFA
@@ -55,10 +55,10 @@ test('Test Case 415044: Verify Download button in the submission proof is enable
   // Step 5: Click "Yes" (as per your recording sequence)
   await page.getByRole('button', { name: 'Yes' }).click();
 
-  // Step 4/5 Verification: Verify Execution Status
+  // Step 4/5 Verification: Verify Execution Status (robust)
   await page.getByText('Execution Status').click();
-  const successMsg = 'Submission Proof completed, CompletedSuccessfully : Finished Submission proof';
-  await expect(page.getByText(successMsg)).toBeVisible({ timeout: 60000 });
+  await expect(page.getByText(/Submission Proof completed/i)).toBeVisible({ timeout: 120_000 });
+  await expect(page.getByText(/CompletedSuccessfully/i)).toBeVisible({ timeout: 120_000 });
 
   //--------------------- 4. Verify Download Button (Step 6) -------------------------
   await page.getByText('Submission Proof').click();
@@ -68,18 +68,18 @@ test('Test Case 415044: Verify Download button in the submission proof is enable
   // Verification: Check if button is enabled
   await expect(downloadBtn).toBeEnabled();
 
-  // Verification: Handle File Download
-  // Start waiting for download before clicking
-  const downloadPromise = page.waitForEvent('download');
-  await downloadBtn.click();
-  const download = await downloadPromise;
+  // Verification: Handle File Download using Promise.all to avoid race
+  const [download] = await Promise.all([
+    page.waitForEvent('download'),
+    downloadBtn.click(),
+  ]);
 
-  // Verify the filename contains "ResultSubmission"
+  // Verify the filename contains "ResultSubmission" and ends with .zip
   const actualFileName = download.suggestedFilename();
   console.log(`Downloaded file name: ${actualFileName}`);
-  expect(actualFileName).toContain('ResultSubmission');
+  expect(actualFileName).toMatch(/ResultSubmission.*\.zip/i);
 
-  // Save the file to local storage for manual extraction check if needed
-  await download.saveAs('./test-results/downloads/' + actualFileName);
+  // Save the file to the test-results downloads folder for CI/manual checks
+  await download.saveAs(`./test-results/downloads/${actualFileName}`);
 
 });

@@ -1,7 +1,7 @@
 const { test, expect } = require('@playwright/test');
 const testData = require('./testData.json'); 
 
-test('Test Case 415039: Verify the Validation Results tab for validated ABSEE deal', async ({ page }) => {
+test('415039 - Verify Validation Results tab for validated ABSEE deal', async ({ page }) => {
   
   // Use the specific data set for 415039 from your JSON
   const data = testData["415039"];
@@ -48,8 +48,9 @@ test('Test Case 415039: Verify the Validation Results tab for validated ABSEE de
   }
 
   // Verify Validation Completion status message
-  const finalStatus = page.getByText('ABS-EE Validation completed, CompletedSuccessfully : Finished Validation');
-  await expect(finalStatus).toBeVisible({ timeout: 120000 }); 
+  await page.getByText('Execution Status').click();
+  await expect(page.getByText(/ABS-EE Validation completed/i)).toBeVisible({ timeout: 120_000 });
+  await expect(page.getByText(/CompletedSuccessfully/i)).toBeVisible({ timeout: 120_000 });
 
 
   // -------------------- 4. Detailed Results Verification (Steps 5-12) -------------

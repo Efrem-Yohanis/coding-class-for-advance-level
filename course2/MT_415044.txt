@@ -3,15 +3,25 @@ name
 Test Case 415044: Verify that 'Download' button in the submission proof is enabled
 
 
-Manual test case
+Manual test case - Steps and Expected Results
 
-415044	Test Case	Verify that 'Download' button in the submission proof is enabled				
-			1	Shared steps 413501: Login into AB2 site				
-			2	Go to newly created and uploaded ABSEE deal	Verify the new deal is available with details and View and Delete button are also available			
-			3	Click on Create button under Submission Proof	Verify a popup "Do you want to include the contents of the Ex-102 file in the submission proof?" is displayed			
-			4	Click "No" if client doesn't want to include EX-102 file	Verif y the 'Execution Status' tab should display a message that says 'Submission Proof completed,CompletedSuccessfully : Finished Submission proof'			
-			5	Click "Yes" if client want to include EX-102 file	Verif y the 'Execution Status' tab should display a message that says 'Submission Proof completed,CompletedSuccessfully : Finished Submission proof'			
-			6	Check the Download  button is enabled and clickable by user	Verify User should be able to download "ResultSubmission" zip file and once extracted able to view the entire ABSEE file content in the downloaded html			
+Precondition: User is logged in (shared steps 413501) and a submission proof exists (or will be created) for the ABSEE deal.
+
+Steps:
+1. Navigate to the ABS-EE Deal Home and locate the deal to test.
+   - Expected: The deal row is visible and shows actions (View, Delete).
+2. Click the "View" action for the deal and open the "Submission Proof" area.
+   - Expected: The Submission Proof section is visible with a "Create" button.
+3. Click "Create" under Submission Proof and choose Yes or No when prompted to include EX-102.
+   - Expected: A confirmation dialog appears: "Do you want to include the contents of the EX-102 file in the submission proof?".
+4. Wait for the Submission Proof to complete (Execution Status).
+   - Expected: Execution Status shows "Submission Proof completed" and "CompletedSuccessfully".
+5. Verify the "Download" button is enabled and clickable.
+   - Expected: Clicking "Download" starts a download of a zip file whose filename contains "ResultSubmission" and ends with ".zip". Optionally extract and verify the contained HTML shows the ABSEE content.
+
+Notes:
+- Allow sufficient timeout for submission proof processing (e.g., 60–120s).
+- Avoid repeating shared login steps in this test to prevent duplicate sessions.
 
 
 
@@ -19,34 +29,35 @@ record
 
 import { test, expect } from '@playwright/test';
 
-test('test', async ({ page }) => {
-  await page.goto('https://13f-qa.azurewebsites.net/');
-  await page.getByRole('button', { name: 'Sign in with DFIN Account' }).click();
+test('415044 - Download button enabled and ResultSubmission zip downloads', async ({ page }) => {
+  const jobRow = /99 submission proof to be/; // adjust to the actual row identifier
+
+  // Navigate to Deals home (assumes shared login handled by shared steps)
+  await page.goto('https://13f-qa.azurewebsites.net/deals');
   await page.getByRole('button', { name: 'ABS-EE Deal Home' }).click();
-  await page.getByRole('heading', { name: 'ABS-EE Deal Home' }).click();
-  await page.getByRole('columnheader', { name: 'Deal Name sort asc' }).locator('span').click();
-  await page.getByRole('link', { name: '2' }).click();
-  await page.getByRole('link', { name: '1' }).click();
-  await page.getByRole('columnheader', { name: 'Deal Name sort desc' }).locator('span').click();
-  await page.getByRole('columnheader', { name: 'Deal Name sort desc' }).locator('span').click();
-  await page.getByRole('columnheader', { name: 'Deal Name sort desc' }).locator('span').click();
-  await page.getByRole('columnheader', { name: 'Deal Name sort asc' }).locator('span').click();
-  await page.getByRole('row', { name: '99 submission proof to be' }).getByRole('link').click();
-  await page.getByText('Submission Proof').click();
+  await expect(page.getByRole('heading', { name: 'ABS-EE Deal Home' })).toBeVisible();
+
+  // Open deal
+  await page.getByRole('row', { name: jobRow }).getByRole('link', { name: /view|open/i }).click();
+
+  // Create submission proof (No flow)
   await page.getByText('Submission Proof').click();
   await page.getByRole('button', { name: 'Create' }).click();
+  await expect(page.getByText(/Do you want to include the contents of the EX-102 file/i)).toBeVisible();
   await page.getByRole('button', { name: 'No' }).click();
-  await page.getByText('File Name:').click();
-  await page.getByText('99.html').click();
-  await page.getByText('Created Date:').nth(1).click();
-  await page.getByText('-11-2026, 5:00:24 PM EST').click();
-  await page.getByRole('button', { name: 'Create' }).click();
-  await page.getByRole('button', { name: 'Yes' }).click();
-  await page.getByText('Execution Status').click();
-  await page.getByText('Submission Proof completed').click();
-  await page.getByText('CompletedSuccessfully :').click();
+  await expect(page.getByText(/Submission Proof completed/i)).toBeVisible({ timeout: 120_000 });
+
+  // View submission proof and trigger download
   await page.getByRole('button', { name: 'View', exact: true }).click();
   const downloadPromise = page.waitForEvent('download');
-  await page.getByRole('button', { name: 'Download', exact: true }).click();
+  const downloadBtn = page.getByRole('button', { name: 'Download', exact: true });
+  await expect(downloadBtn).toBeEnabled();
+
+  await downloadBtn.click();
   const download = await downloadPromise;
+
+  // Assert filename pattern and optionally save
+  const filename = download.suggestedFilename();
+  expect(filename).toMatch(/ResultSubmission.*\.zip/i);
+  await download.saveAs(filename);
 });

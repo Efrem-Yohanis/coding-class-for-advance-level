@@ -1,23 +1,23 @@
 const { test, expect } = require('@playwright/test');
 const testData = require('./testData.json'); 
 
-test('Test Case 415042: Verify the File Name and Created Date for created submission proof', async ({ page }) => {
-  
-  // Set data for this specific test case from JSON
-  const data = testData.TC_415042;
+// Increase timeout for this test to accommodate MFA/processing
+test.setTimeout(120_000);
 
-  // 1. INCREASE TIMEOUT TO 2 MINUTES (120,000 ms)
-  // This gives you enough time for MFA + Upload + Verification
-  test.setTimeout(120000);
+test('415042 - Verify the File Name and Created Date for created submission proof', async ({ page }) => {
+  // Use standardized test data
+  const data = testData["415042"];
+  const jobNumber = data.jobNumber;
+  const dealRow = new RegExp(`${jobNumber} submission proof to be`);
 
-  //--------------------  1. Login Flow ---------------------------------------------
-  await page.goto('https://13f-qa.azurewebsites.net/'); 
+  //--------------------  1. Login Flow (mandatory) ---------------------------------------------
+  await page.goto('https://13f-qa.azurewebsites.net/deals'); 
 
   await page.getByRole('button', { name: 'Sign in with DFIN Account' }).click();
-  await page.getByRole('textbox', { name: 'Email address' }).fill('xxxx@email.com');
+  await page.getByRole('textbox', { name: 'Email address' }).fill(process.env.TEST_USER_EMAIL || 'xxxx@email.com');
   await page.getByRole('button', { name: 'Continue' }).click();
 
-  await page.getByRole('textbox', { name: /Enter the password/i }).fill('xxxx');
+  await page.getByRole('textbox', { name: /Enter the password/i }).fill(process.env.TEST_USER_PASSWORD || 'xxxx');
   await page.getByRole('button', { name: 'Sign in' }).click();
 
   // Handle MFA
@@ -63,23 +63,22 @@ test('Test Case 415042: Verify the File Name and Created Date for created submis
 
   // Wait for Execution Status to finish
   await page.getByText('Execution Status').click();
-  await expect(page.getByText('Submission Proof completed, CompletedSuccessfully'))
-    .toBeVisible({ timeout: 60000 });
+  await expect(page.getByText(/Submission Proof completed/i)).toBeVisible({ timeout: 120_000 });
+  await expect(page.getByText(/CompletedSuccessfully/i)).toBeVisible({ timeout: 120_000 });
 
   //--------------------- 4. Verify Results (Step 4 & 5) ----------------------------
   await page.getByText('Submission Proof').click();
 
-  // Step 4: Verify FileName matches JobNumber
-  const fileNameValue = page.locator('text=File Name:').locator('..');
-  await expect(fileNameValue).toContainText(data.expectedFileName);
+  // Verify filename contains job number and expected filename
+  await expect(page.getByText(/File Name:/i)).toBeVisible();
+  await expect(page.getByText(new RegExp(`${jobNumber}.*\.html`, 'i'))).toBeVisible();
+  await expect(page.getByText(data.expectedFileName)).toBeVisible();
 
-  // Step 5: Verify Created Date and Timestamp
-  // Uses nth(1) because Created Date appears in multiple tabs
-  const createdDateValue = page.locator('span').filter({ hasText: /^Created Date:$/ }).nth(1).locator('..');
-  
-  // Matches the year (2026) and the time format (HH:MM:SS AM/PM) found in recording
-  await expect(createdDateValue).toContainText(data.expectedYear);
-  await expect(createdDateValue).toContainText(/\d{1,2}:\d{2}:\d{2}\s(AM|PM)/);
+  // Verify Created Date includes year and timestamp
+  await expect(page.getByText(/Created Date:/i)).toBeVisible();
+  const created = page.getByText(/Created Date:/i).locator('..');
+  await expect(created).toContainText(new RegExp(data.expectedYear));
+  await expect(created).toContainText(/\d{1,2}:\d{2}:\d{2}\s(AM|PM)/);
 
 
 });

@@ -20,57 +20,39 @@ Record
 
 import { test, expect } from '@playwright/test';
 
-test('test', async ({ page }) => {
-  await page.goto('https://13f-qa.azurewebsites.net/');
-  await page.getByRole('button', { name: 'Sign in with DFIN Account' }).click();
+// 415047 - SEC Information page
+// Replaces noisy recording with clear assertions for field presence, validation tooltips, and successful save
+
+test('415047 - SEC Information page shows fields and validation messages', async ({ page }) => {
+  const jobRow = /Testing job|99 submission proof to be/; // parameterize in fixtures
+
+  // Navigate to Deals home
+  await page.goto('https://13f-qa.azurewebsites.net/deals');
   await page.getByRole('button', { name: 'ABS-EE Deal Home' }).click();
-  await page.getByRole('heading', { name: 'ABS-EE Deal Home' }).click();
-  await page.getByRole('columnheader', { name: 'Deal Name sort asc' }).locator('span').click();
-  await page.getByRole('link', { name: '2' }).click();
-  await page.getByRole('row', { name: 'Testing job' }).getByRole('link').click();
-  await page.getByRole('columnheader', { name: 'Deal Name sort asc' }).click();
-  await page.getByRole('columnheader', { name: 'Deal Name sort desc' }).click();
-  await page.getByRole('row', { name: 'Testing job' }).getByRole('link').click();
+  await expect(page.getByRole('heading', { name: 'ABS-EE Deal Home' })).toBeVisible();
+
+  // Open deal and go to SEC page
+  await page.getByRole('row', { name: jobRow }).getByRole('link').click();
   await page.getByRole('link', { name: 'SEC' }).click();
-  await page.getByText('Submission Contact').click();
-  await page.locator('div').filter({ hasText: /^Name$/ }).click();
-  await page.getByText('Phone Number').click();
-  await page.getByText('SROS*NONE').click();
-  await page.locator('div').filter({ hasText: /^NONE$/ }).nth(1).click();
-  await page.getByText('Submission Information').click();
-  await page.getByText('Filer CIK*').click();
-  await page.getByRole('spinbutton').first().click();
-  await page.getByRole('spinbutton').first().fill('0000990461');
-  await page.locator('div').filter({ hasText: /^Filer CCC\*$/ }).click();
-  await page.getByText('Filer CCC*').click();
-  await page.getByRole('textbox').nth(4).click();
-  await page.getByRole('textbox').nth(4).fill('2trains*');
-  await page.getByText('ABS-EE File Number*').click();
-  await page.getByRole('textbox').nth(5).click();
-  await page.getByRole('textbox').nth(5).fill('002-12345');
-  await page.getByText('Depositor CIK*').click();
-  await page.locator('div').filter({ hasText: /^Depositor CIK\*$/ }).click();
-  await page.getByRole('spinbutton').nth(1).fill('0000990600');
-  await page.getByText('Sponsor CIK*').click();
-  await page.getByRole('spinbutton').nth(2).click();
-  await page.getByRole('spinbutton').nth(2).fill('0000990458');
-  await page.getByText('Asset Class*').click();
-  await page.locator('div').filter({ hasText: /^Select\.\.\.$/ }).nth(2).click();
-  await page.getByText('Auto leases', { exact: true }).click();
- await page.getByText('ABS-EE Start Period*').click();
- await page.getByText('ABS-EE End Period*').click();
-  await page.getByText('ABS-EE CoRegistrant').click();
-  await page.getByRole('columnheader', { name: 'Co-Reg Filer CIK' }).click();
-  await page.getByRole('columnheader', { name: 'Co-Reg Filer CCC' }).click();
-  await page.getByRole('columnheader', { name: 'Co-Reg File Number' }).click();
-  await page.getByText('Notification Emails').click();
-  await page.getByText('Email Address').first().click();
-  await page.locator('input[type="email"]').first().click();
-  await page.locator('input[type="email"]').first().fill('xxxxxx@yhaoo.com');
+
+  // Assert key sections and fields are present
+  await expect(page.getByText('Submission Information')).toBeVisible();
+  await expect(page.getByText('Submission Contact')).toBeVisible();
+  await expect(page.getByText('Notification Email')).toBeVisible();
+
+  // Click Save without filling required fields and assert validation message appears
   await page.getByRole('button', { name: 'Save' }).click();
+  await expect(page.getByText(/Please fill out this field/i)).toBeVisible({ timeout: 5_000 });
+
+  // Fill minimal required fields and save successfully
+  await page.getByRole('spinbutton').first().fill('0000990461'); // Filer CIK
+  await page.getByRole('textbox', { name: /Filer CCC/i }).fill('2trains*');
+  await page.getByRole('textbox', { name: /ABS-EE File Number/i }).fill('002-12345');
+  await page.getByRole('spinbutton').nth(1).fill('0000990600'); // Depositor CIK
+  await page.getByRole('spinbutton').nth(2).fill('0000990458'); // Sponsor CIK
+  await page.locator('input[type="email"]').first().fill('test@example.com');
+
   await page.getByRole('button', { name: 'Save' }).click();
-  await page.getByText('Saved successfully').click();
-  await page.getByText('Success', { exact: true }).click();
-  await page.getByText('Saved successfully').click();
+  await expect(page.getByText(/Saved successfully/i)).toBeVisible({ timeout: 10_000 });
 });
 
