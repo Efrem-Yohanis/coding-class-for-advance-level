@@ -44,5 +44,9 @@
     "jobNumber": "99",
     "expectedFileName": "99.html",
     "expectedYear": "2026"
+  },
+  "TC_415044": {
+    "dealName": "99 submission proof to be",
+    "expectedDownloadName": "ResultSubmission.zip"
   }
 }
