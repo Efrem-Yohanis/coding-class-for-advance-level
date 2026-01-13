@@ -1,0 +1,126 @@
+Test name
+415055	Test Case	Verify ABSEE deal schedule test filing transmission is successful
+
+Manual test case - Steps and Expected Results
+
+Precondition: User is logged in (shared steps 413501) and has access to the ABS-EE Deal Home page. A deal with uploaded ABSEE files exists or will be created during the test.
+
+Clean, step-by-step procedure:
+1. From the ABS-EE Deal Home, locate the target deal using Job Number or Deal Name.
+   - Expected: The deal row is visible and contains 'View' and 'Delete' actions.
+2. Click the 'View' link for the deal to open the Deal Details page.
+   - Expected: The page opens and shows headings like 'FILE UPLOAD DETAILS' or 'Files'.
+3. Verify the status at the top of the page is 'Active'. If status is loading, open the 'SEC' tab to ensure authentication tokens are populated.
+   - Expected: Status reads 'Active' or SEC tab tokens are present and valid.
+4. In the SEC tab, ensure required SEC fields are populated (Submission Contact, Filer CIK, Filer CCC, ABS-EE File Number, Depositor CIK, Sponsor CIK, Asset Class, Start/End Period) and save.
+   - Expected: Fields save successfully and a 'Saved successfully' confirmation appears.
+5. Return to Deal page and click 'Upload', then upload ABSEE zip and/or individual files.
+   - Expected: Files appear in the upload queue and upload action completes without error.
+6. Click 'Perform Validation' and wait for validation results to finish.
+   - Expected: Validation results are shown (e.g., 'Validation Results' link or 'CompletedSuccessfully').
+7. Click 'Submission Proof' and generate submission proof as required.
+   - Expected: Submission proof is generated and available for download or review.
+8. Check the 'Schedule Filing' checkbox.
+   - Expected: A confirmation popup appears asking 'Are you sure you want to schedule this filing?' with 'Yes' and 'No' buttons.
+9. Click 'Yes' in the popup to confirm; the checkbox should become checked and the 'Transmit Test Filing' button should change to 'Schedule Test Filing'.
+   - Expected: Popup closes, checkbox is checked, and button label updates.
+10. Click the 'Schedule Test Filing' button to open scheduling dialog.
+    - Expected: Dialog header 'Schedule Test Filing' is displayed with 'Schedule Test Filing' and 'Cancel' buttons.
+11. Enter required fields (Job Number and Filer CIK) and select desired date/time to schedule.
+    - Expected: The 'Schedule Test Filing' button is enabled when required fields are filled.
+12. Click 'Schedule Test Filing' in the dialog to confirm schedule.
+    - Expected: Dialog closes and a message like 'A TEST filing is scheduled for xx/xx/xxxx at xx:xx AM or PM EST' appears.
+13. After the scheduled time elapses, check 'Execution Status' and confirm completion.
+    - Expected: Execution Status shows 'SiFi filing completed successfully' and 'Status: Accepted'.
+14. Verify an Accession Number is generated and displayed (pattern: 10 digits - 2 digits - 6 digits).
+    - Expected: Accession Number is present in the UI and under 'Submission Proof' tab.
+
+Notes:
+- Allow generous timeouts for background processing (120s+).
+- Ensure schedule timing in test environment can be accelerated or mocked for CI where possible.
+
+Record (sample script):
+See `course2/Test_Case_415055.spec.ts` for an automated implementation.
+
+import { test, expect } from '@playwright/test';
+
+test('Verify ABSEE deal schedule test filing transmission is successful', async ({ page }) => {
+  // 1. & 2. Locate and Open Deal
+  await page.goto('https://13f-qa.azurewebsites.net/');
+  await page.getByRole('button', { name: 'ABS-EE Deal Home' }).click();
+  
+  // (Assuming deal "Test filing test" with Job Number "10" exists as per manual steps)
+  const dealRow = page.getByRole('row', { name: '10 Test filing test' });
+  await expect(dealRow).toBeVisible();
+  await dealRow.getByRole('link').click();
+
+  // 3. & 4. Verify Status and Populate SEC Fields
+  await expect(page.getByText('Active')).toBeVisible();
+  await page.getByRole('link', { name: 'SEC' }).click();
+  
+  // Fill required SEC fields
+  await page.getByRole('spinbutton').first().fill('0000990461'); // Filer CIK
+  await page.getByRole('textbox').nth(4).fill('2trains*');       // Filer CCC
+  await page.getByRole('textbox').nth(5).fill('002-12345');      // ABS-EE File Number
+  await page.getByRole('spinbutton').nth(1).fill('0000990600'); // Depositor CIK
+  await page.getByRole('spinbutton').nth(2).fill('0000990458'); // Sponsor CIK
+  
+  await page.getByText('Select...').click();
+  await page.getByText('Auto leases', { exact: true }).click();
+  
+  // Set Periods
+  await page.locator('.react-datepicker__input-container > .form-control').first().fill('08-01-2024');
+  await page.locator('div:nth-child(2) > .react-datepicker-wrapper > .react-datepicker__input-container > .form-control').fill('09-30-2024');
+  
+  await page.locator('input[type="email"]').first().fill('biniyam.a.gebeyehu@dfinsolutions.com');
+  await page.getByRole('button', { name: 'Save' }).click();
+  await expect(page.getByText('Saved successfully')).toBeVisible();
+
+  // 5. Upload Files
+  await page.getByRole('link', { name: 'Back to Deal' }).click();
+  await page.getByRole('button', { name: 'Upload' }).setInputFiles([
+    'lease24babsee.htm', 
+    'lease24bex102.xml', 
+    'lease24bex103.xml'
+  ]);
+
+  // 6. & 7. Perform Validation and Proof
+  await page.getByRole('button', { name: 'Perform Validation' }).click();
+  await expect(page.getByText('CompletedSuccessfully')).toBeVisible({ timeout: 120000 });
+  
+  await page.getByText('Submission Proof').click();
+  await page.getByRole('button', { name: 'Create' }).click();
+
+  // 8. & 9. Schedule Filing Checkbox Logic
+  await page.getByRole('link', { name: 'Submit Filing' }).click();
+  await page.getByText('Schedule Filing').click();
+  
+  // Handle the confirmation popup
+  await page.getByRole('button', { name: 'Yes' }).click();
+  
+  // 10. & 11. Open Scheduling Dialog and Fill Fields
+  const scheduleBtn = page.getByRole('button', { name: 'Schedule Test Filing' });
+  await expect(scheduleBtn).toBeVisible();
+  await scheduleBtn.click();
+
+  // Fill Modal fields
+  await page.getByRole('spinbutton').fill('0000990461'); // Filer CIK
+  await page.getByRole('textbox').nth(1).fill('Test filing test'); // Deal Name
+  
+  // Set a future time (e.g., 2 minutes from now)
+  await page.getByRole('textbox').first().fill('01/13/2026 10:00 PM'); 
+
+  // 12. Confirm Schedule
+  await page.getByRole('button', { name: 'Schedule Test Filing' }).filter({ hasText: 'Schedule' }).click();
+  await expect(page.getByRole('heading', { name: 'A TEST filing is scheduled' })).toBeVisible();
+
+  // 13. & 14. Execution Status and Accession Number
+  // We wait for the scheduled task to process
+  await expect(page.getByText('CompletedSuccessfully : SiFi')).toBeVisible({ timeout: 180000 });
+  
+  const accessionNumber = page.getByText(/Accession Number/i);
+  await expect(accessionNumber).toBeVisible();
+  
+  // Final regex check for the pattern: 10 digits - 2 digits - 6 digits
+  await expect(page.getByText(/\d{10}-\d{2}-\d{6}/)).toBeVisible();
+});

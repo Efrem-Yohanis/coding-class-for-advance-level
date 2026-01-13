@@ -1,0 +1,93 @@
+Tecase 415038  Verify the validation results for ABSEE deal
+
+
+1 test name
+
+Test Case 415038: Verify the validation results for ABSEE deal
+
+2. Manual test case
+
+
+
+1
+Shared steps 413501: Login into AB2 site
+2
+Go to newly created and uploaded ABSEE deal
+Verify the new deal is available with details and View and Delete button are also available
+3
+Click on 'View' button
+Verify View button is accessible and clickable to user
+4
+Check ABSEE deal details page opens
+Verify user successfully navigates to ABSEE Deal details page
+5
+Click on Perform Validation button
+Verify the Select pair for validation popup displays and user able to select any radio button,ok and cancel button
+6
+Select the radio button
+Verify radio button is selectable and ok button is enabled
+7
+Click on the ok button
+Verify user clicks on the ok button and validation starts
+8
+Check for the Execution Status tab
+Verify a message indicating 'ABS-EE Validation completed,CompletedSuccessfully : Finished Validation' is being displayed
+9
+Check the Validation Results tab is updated
+
+Verify the Filename,
+Created Date,
+Period Start,
+Period End,
+Number of Records,
+Number of Errors,
+Number of Warnings details are updated once the validation is completed
+
+
+3 records
+
+import { test, expect } from '@playwright/test';
+
+test('415038 - Verify validation results for ABS-EE deal', async ({ page }) => {
+  const dealRowName = '548678 ar 29489 09-30-2024 01';
+
+  // Go to Deals home (assumes shared login steps are completed separately)
+  await page.goto('https://13f-qa.azurewebsites.net/deals');
+  await page.getByRole('button', { name: 'ABS-EE Deal Home' }).click();
+  await expect(page.getByRole('heading', { name: 'ABS-EE Deal Home' })).toBeVisible();
+
+  // Open deal details
+  await page.getByRole('row', { name: dealRowName }).getByRole('link', { name: /view/i }).click();
+  await expect(page.getByRole('button', { name: 'Perform Validation' })).toBeVisible();
+
+  // Start validation and select pair
+  await page.getByRole('button', { name: 'Perform Validation' }).click();
+  await expect(page.getByText('Select pair for validation')).toBeVisible();
+  await page.getByRole('radio').first().check();
+  await page.getByRole('button', { name: /ok|confirm/i }).click();
+
+  // Wait for completion
+  await page.getByText('Execution Status').click();
+  await expect(page.getByText(/ABS-EE Validation completed/i)).toBeVisible({ timeout: 60_000 });
+  await expect(page.getByText(/CompletedSuccessfully/i)).toBeVisible({ timeout: 60_000 });
+
+  // Open Validation Results and validate fields
+  await page.locator('span').filter({ hasText: 'Validation Results' }).click();
+  await expect(page.getByText(/Filename:/i)).toBeVisible();
+  await expect(page.getByText(/ValidationResults.*\.xlsx/i)).toBeVisible();
+  await expect(page.getByText(/Created Date:/i)).toBeVisible();
+  await expect(page.getByText(/Period Start:/i)).toBeVisible();
+  await expect(page.getByText(/Period End:/i)).toBeVisible();
+  await expect(page.getByText(/Number of Records:/i)).toBeVisible();
+  await expect(page.getByText(/Number of Errors:/i)).toBeVisible();
+  await expect(page.getByText(/Number of Warnings:/i)).toBeVisible();
+
+  // Verify numeric result values when known
+  await expect(page.getByText(/Number of Records:\s*29489/)).toBeVisible();
+  await expect(page.getByText(/Number of Errors:\s*0/)).toBeVisible();
+  await expect(page.getByText(/Number of Warnings:\s*0/)).toBeVisible();
+});
+
+
+
+----------------------------------------------------------------

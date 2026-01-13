@@ -1,3 +1,31 @@
+
+
+Name
+
+Test Case 415049: Verify the Submit Filing button and Submission Details page
+
+Manual test case - Steps and Expected Results
+
+Precondition: User is logged in (shared steps 413501) and necessary SEC information has been entered for the deal.
+
+Steps:
+1. Navigate to ABS-EE Deal Home and locate the target deal.
+   - Expected: The deal is listed and actions (View, Delete) are present.
+2. Click the "View" action to open the deal details.
+   - Expected: Deal detail view is accessible.
+3. Verify the "Submit Filing" link/button is visible and enabled.
+   - Expected: "Submit Filing" is accessible and clickable.
+4. Click "Submit Filing" to open the Submission Details page.
+   - Expected: The Submission Details page opens and displays the SEC-entered fields.
+5. Verify displayed SEC fields (e.g., Filer CIK, Filer CCC, ABS-EE File Number, Depositor CIK, Sponsor CIK, Asset Class, Start/End Period) match the values entered in SEC.
+   - Expected: All key fields are present and contain the expected values.
+
+Notes:
+- Use parameterized selectors or fixtures for deal identification instead of hard-coded names.
+- If values are dynamic, assert presence/format rather than exact equality (e.g., CIK format, .pdf extension, proper dates).
+
+Record
+
 const { test, expect } = require('@playwright/test');
 const testData = require('./testData.json');
 
@@ -60,3 +88,4 @@ test('415049 - Submit Filing opens Submission Details and shows SEC values', asy
   await expect(page.getByText(expected.sponsorCIK)).toBeVisible();
   await expect(page.getByText(expected.assetClass)).toBeVisible();
 });
+

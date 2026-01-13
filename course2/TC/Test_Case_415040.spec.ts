@@ -1,5 +1,5 @@
 const { test, expect } = require('@playwright/test');
-const testData = require('./testData.json');
+const testData = require('../utility/test_data.json');
 
 // Increase the test timeout for long validation tasks
 test.setTimeout(180_000);

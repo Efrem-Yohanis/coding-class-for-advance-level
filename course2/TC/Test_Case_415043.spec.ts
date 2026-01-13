@@ -1,5 +1,5 @@
 const { test, expect } = require('@playwright/test');
-const testData = require('./testData.json'); 
+const testData = require('../utility/test_data.json'); 
 
 test('415043 - Verify View button in the submission proof opens proof in a new tab', async ({ page, context }) => {
   

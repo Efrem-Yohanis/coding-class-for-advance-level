@@ -1,5 +1,5 @@
 const { test, expect } = require('@playwright/test');
-const testData = require('./testData.json');
+const testData = require('../utility/test_data.json');
 
 // Verify SEC save enables Submit Filing
 test.setTimeout(120_000);

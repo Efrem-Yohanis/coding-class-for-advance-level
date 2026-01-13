@@ -1,0 +1,98 @@
+Name
+
+Test Case 415046: Verify that 'Download PDF' button in the submission proof is enabled
+
+
+
+Manual test case - Steps and Expected Results
+
+Precondition: User is logged in (shared steps 413501) and a submission proof exists or will be created for the ABSEE deal.
+
+Steps:
+1. Navigate to ABS-EE Deal Home and locate the target deal.
+   - Expected: Deal row is visible and shows actions (View, Delete).
+2. Open the deal and go to the "Submission Proof" area.
+   - Expected: The Submission Proof section is visible with a "Create" button.
+3. Click "Create" and choose Yes or No when prompted about including EX-102.
+   - Expected: Confirmation dialog appears: "Do you want to include the contents of the EX-102 file in the submission proof?".
+4. Wait for the Submission Proof to complete (Execution Status).
+   - Expected: Execution Status shows "Submission Proof completed" and "CompletedSuccessfully".
+5. If necessary, click "Convert to PDF" and wait for conversion to complete.
+   - Expected: Execution Status shows "Pdf Convert completed" and "CompletedSuccessfully".
+6. Click "Download PDF" and verify a PDF file is downloaded.
+   - Expected: A download is triggered and the suggested filename ends with ".pdf" (e.g., /.*\.pdf$/).
+
+Notes:
+- Allow sufficient timeouts for background processing (60–120s).
+- Prefer using fixtures or parameterized selectors for the deal row instead of hard-coded text.
+
+
+
+Record
+
+const { test, expect } = require('@playwright/test');
+const testData = require('./testData.json');
+
+// Verify Download PDF flow downloads a .pdf file
+test.setTimeout(180_000);
+
+test('415046 - Download PDF downloads generated PDF', async ({ page }) => {
+  const data = testData['415046'] || {};
+  const jobNumber = data.jobNumber || '99';
+  const dealName = data.dealName || '99 submission proof to be';
+  const periodEnd = data.periodEnd || '09-30-2024';
+  const rowRegex = new RegExp(`${jobNumber} ${dealName} ${periodEnd}`);
+
+  // LOGIN (mandatory)
+  await page.goto('https://13f-qa.azurewebsites.net/deals');
+  await page.getByRole('button', { name: 'Sign in with DFIN Account' }).click();
+  await page.getByRole('textbox', { name: 'Email address' }).fill(process.env.TEST_USER_EMAIL || 'test@local');
+  await page.getByRole('button', { name: 'Continue' }).click();
+  await page.getByRole('textbox', { name: /Enter the password/i }).fill(process.env.TEST_USER_PASSWORD || 'password');
+  await page.getByRole('button', { name: 'Sign in' }).click();
+
+  // MFA handling
+  const mfaOption = page.getByRole('button', { name: 'Approve a request on my Microsoft Authenticator app' });
+  if (await mfaOption.isVisible({ timeout: 5000 })) {
+    await mfaOption.click();
+    await page.waitForTimeout(20000);
+  }
+
+  // Stay signed in
+  const staySignedInNo = page.locator('#idBtn_Back');
+  if (await staySignedInNo.isVisible({ timeout: 5000 })) {
+    await staySignedInNo.click();
+  }
+
+  // Open deal
+  await page.getByRole('button', { name: 'ABS-EE Deal Home' }).click();
+  await expect(page.getByRole('row', { name: rowRegex })).toBeVisible({ timeout: 30_000 });
+  await page.getByRole('row', { name: rowRegex }).getByRole('link', { name: /view|open/i }).click();
+
+  // Create Submission Proof (No flow) if needed
+  await page.getByText('Submission Proof').click();
+  const createBtn = page.getByRole('button', { name: 'Create' });
+  if (await createBtn.isVisible({ timeout: 5000 })) {
+    await createBtn.click();
+    await expect(page.getByText(/Do you want to include the contents of the EX-102 file/i)).toBeVisible();
+    await page.getByRole('button', { name: 'No' }).click();
+    await page.getByText('Execution Status').click();
+    await expect(page.getByText(/Submission Proof completed/i)).toBeVisible({ timeout: 120_000 });
+    await expect(page.getByText(/CompletedSuccessfully/i)).toBeVisible({ timeout: 120_000 });
+  }
+
+  // Convert to PDF if available
+  const convertBtn = page.getByRole('button', { name: 'Convert to PDF' });
+  if (await convertBtn.isVisible()) {
+    await expect(convertBtn).toBeEnabled({ timeout: 30_000 });
+    await convertBtn.click();
+    await page.getByText('Execution Status').click();
+    await expect(page.getByText(/Pdf Convert completed/i)).toBeVisible({ timeout: 120_000 });
+    await expect(page.getByText(/CompletedSuccessfully/i)).toBeVisible({ timeout: 120_000 });
+  }
+
+  // Download PDF and assert filename
+  const [download] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'Download PDF' }).click()]);
+  const suggested = download.suggestedFilename();
+  expect(suggested).toMatch(/\.pdf$/i);
+});

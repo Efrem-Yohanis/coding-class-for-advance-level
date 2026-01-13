@@ -1,5 +1,5 @@
 const { test, expect } = require('@playwright/test');
-const testData = require('./testData.json');
+const testData = require('../utility/test_data.json');
 
 // This test covers creating submission proof (No flow) and asserts completion
 // Increase timeout for upload/processing and validation

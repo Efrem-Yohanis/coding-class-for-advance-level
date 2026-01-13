@@ -1,6 +1,5 @@
 const { test, expect } = require('@playwright/test');
-const testData = require('./testData.json'); 
-
+const testData = require('../utility/test_data.json');
 test('415039 - Verify Validation Results tab for validated ABSEE deal', async ({ page }) => {
   
   // Use the specific data set for 415039 from your JSON

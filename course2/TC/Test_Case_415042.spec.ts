@@ -1,5 +1,5 @@
 const { test, expect } = require('@playwright/test');
-const testData = require('./testData.json'); 
+const testData = require('../utility/test_data.json'); 
 
 // Increase timeout for this test to accommodate MFA/processing
 test.setTimeout(120_000);

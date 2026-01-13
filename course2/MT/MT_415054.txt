@@ -1,0 +1,109 @@
+Test name
+415054	Test Case	Verify test filing transmission is successful in ABSEE deal
+
+Manual test case - Steps and Expected Results
+
+Precondition: User is logged in (shared steps 413501) and has access to the ABS-EE Deal Home page. A deal with uploaded ABSEE files exists or will be created during the test.
+
+Test Steps (concise):
+1. Open ABS-EE Deal Home and find the deal by Job Number or Deal Name.
+   - Expected: Deal row is visible with 'View' and 'Delete'.
+2. Click 'View' to open deal details.
+   - Expected: Deal details page opens (shows 'Files' / 'FILE UPLOAD DETAILS').
+3. Confirm status is 'Active' (if not, open 'SEC' to populate auth token).
+   - Expected: 'Active' status or SEC token populated.
+4. Ensure SEC fields are saved (if required) and Upload ABSEE files via 'Upload'.
+   - Expected: Files appear in upload queue and upload completes.
+5. Run 'Perform Validation' (if present) and wait for completion.
+   - Expected: Validation results appear or show 'CompletedSuccessfully'.
+6. Create 'Submission Proof' if required.
+   - Expected: Submission proof is available.
+7. Click 'Submit Filing' → 'Submit Files', then click 'Transmit Test Filing'.
+   - Expected: Execution Status shows 'SiFi filing completed successfully' and 'Status: Accepted'.
+8. Verify an Accession Number is generated and visible (pattern: 10 digits-2 digits-6 digits).
+   - Expected: Accession Number present in UI and in Submission Proof.
+
+Notes:
+- Allow generous timeouts for background processing (120s+).
+- For CI, ensure upload fixtures exist or mock upload/processing.
+
+Record (sample script):
+See `course2/Test_Case_415054.spec.ts` for an automated implementation.
+
+
+recoreds:
+import { test, expect } from '@playwright/test';
+
+test('Verify test filing transmission is successful in ABSEE deal', async ({ page }) => {
+  // 1. Open ABS-EE Deal Home
+  await page.goto('https://13f-qa.azurewebsites.net/');
+  await page.getByRole('button', { name: 'ABS-EE Deal Home' }).click();
+
+  // 2. Create/Find Deal (Following your recording logic)
+  await page.getByRole('button', { name: 'Create New Deal' }).click();
+  await page.locator('#selectedCompany').selectOption('19');
+  await page.getByRole('textbox', { name: 'Job Number' }).fill('10');
+  await page.getByRole('textbox', { name: 'Deal Name*' }).fill('Test filing test');
+  
+  // Date selection
+  await page.getByRole('textbox', { name: 'Period End Date*' }).fill('09-30-2024');
+  await page.getByRole('textbox', { name: 'Target Filing Date*' }).click();
+  await page.getByRole('option', { name: 'Choose Monday, January 12th,' }).click();
+  
+  await page.getByLabel('ABS Schema Type*').selectOption('2');
+  await page.getByRole('button', { name: 'Create', exact: true }).click();
+
+  // 3. Open the Deal
+  // We filter by row to ensure we click the correct 'View' link
+  const dealRow = page.getByRole('row', { name: '10 Test filing test' });
+  await dealRow.getByRole('link').click();
+
+  // 4. Populate SEC Details (Manual Step 3 & 4)
+  await page.getByRole('link', { name: 'SEC' }).click();
+  await page.getByRole('spinbutton').first().fill('0000990461'); // Filer CIK
+  await page.getByRole('textbox').nth(4).fill('2trains*');       // Filer CCC
+  await page.getByRole('textbox').nth(5).fill('002-12345');      // ABS-EE File Number
+  await page.getByRole('spinbutton').nth(1).fill('0000990600'); // Depositor CIK
+  await page.getByRole('spinbutton').nth(2).fill('0000990458'); // Sponsor CIK
+  
+  await page.getByText('Select...').click();
+  await page.getByText('Auto leases', { exact: true }).click(); // Asset Class
+  
+  // Fill Periods
+  await page.locator('.react-datepicker__input-container > .form-control').first().fill('08-01-2024');
+  await page.locator('div:nth-child(2) > .react-datepicker-wrapper > .react-datepicker__input-container > .form-control').fill('09-30-2024');
+  
+  await page.locator('input[type="email"]').first().fill('biniyam.a.gebeyehu@dfinsolutions.com');
+  await page.getByRole('button', { name: 'Save' }).click();
+  await expect(page.getByText('Saved successfully')).toBeVisible();
+
+  // 5. Upload Files (Manual Step 4)
+  await page.getByRole('link', { name: 'Back to Deal' }).click();
+  const fileChooserPromise = page.waitForEvent('filechooser');
+  await page.getByRole('button', { name: 'Upload' }).click();
+  const fileChooser = await fileChooserPromise;
+  await fileChooser.setFiles(['lease24babsee.htm', 'lease24bex102.xml', 'lease24bex103.xml']);
+
+  // 6. Perform Validation (Manual Step 5)
+  await page.getByRole('button', { name: 'Perform Validation' }).click();
+  // Wait for background processing
+  await expect(page.getByText('CompletedSuccessfully')).toBeVisible({ timeout: 120000 });
+
+  // 7. Submission Proof (Manual Step 6)
+  await page.getByText('Submission Proof').click();
+  await page.getByRole('button', { name: 'Create' }).click();
+
+  // 8. Transmit Test Filing (Manual Step 7)
+  await page.getByRole('link', { name: 'Submit Filing' }).click();
+  await page.getByRole('link', { name: 'Submit Files' }).click();
+  await page.getByRole('button', { name: 'Transmit Test Filing' }).click();
+
+  // 9. Final Verification (Manual Step 8)
+  await expect(page.getByText('CompletedSuccessfully : SiFi')).toBeVisible({ timeout: 120000 });
+  const accessionNumber = page.getByText('Accession Number');
+  await expect(accessionNumber).toBeVisible();
+  
+  // Optional: Verify accession number format (10-2-6 digits)
+  const accessionText = await page.getByText(/\d{10}-\d{2}-\d{6}/).textContent();
+  console.log(`Accession Number Generated: ${accessionText}`);
+});

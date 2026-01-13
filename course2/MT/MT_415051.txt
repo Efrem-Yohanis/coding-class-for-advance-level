@@ -1,0 +1,81 @@
+
+
+Name
+
+
+Test Case 415051: Verify the Final Confirmation page
+
+Manual test case - Steps and Expected Results
+
+Precondition: User is logged in (shared steps 413501) and files and SEC information are ready for submission.
+
+Steps:
+1. Navigate to ABS-EE Deal Home and locate the target deal.
+   - Expected: The deal row is visible and shows actions (View, Delete).
+2. Click "View" to open the deal details and then "Submit Filing".
+   - Expected: Submission Details loads and shows required fields.
+3. Click "Submit Files" to navigate to the Final Confirmation page.
+   - Expected: Final Confirmation page loads with heading "Final Confirmation".
+4. Verify the available actions/buttons on the Final Confirmation page.
+   - Expected: The page displays the following actions/buttons:
+     - Transmit Test Filing
+     - Create Submission and Download
+     - Download Current Submission
+     - Submit Live Filing
+     - Back to Deal
+     - Back to Home Page
+     - Schedule Filing
+
+Notes:
+- Use fixtures/parameterized selectors for deal and filename values in CI.
+- Allow a longer timeout (e.g., 30s) for the Final Confirmation page to appear if submission processing is involved.
+
+
+Record
+
+import { test, expect } from '@playwright/test';
+
+test('415051 - Final Confirmation shows expected action buttons', async ({ page }) => {
+  const jobRow = /Testing job|99 submission proof to be/; // parameterize for CI
+
+  // Navigate to Deals home (login handled externally)
+  await page.goto('https://13f-qa.azurewebsites.net/deals');
+  await page.getByRole('button', { name: 'ABS-EE Deal Home' }).click();
+  await expect(page.getByRole('heading', { name: 'ABS-EE Deal Home' })).toBeVisible();
+
+  // Open the deal and go to Final Confirmation
+  await page.getByRole('row', { name: jobRow }).getByRole('link', { name: /view|open/i }).click();
+  await page.getByRole('link', { name: 'Submit Filing' }).click();
+  await page.getByRole('link', { name: 'Submit Files' }).click();
+
+  // Wait for Final Confirmation and assert buttons/actions are present
+  await expect(page.getByRole('heading', { name: 'Final Confirmation' })).toBeVisible({ timeout: 30_000 });
+
+  const actions = [
+    'Transmit Test Filing',
+    'Create Submission and Download',
+    'Download Current Submission',
+    'Submit Live Filing',
+    'Back to Deal',
+    'Back to Home Page',
+    'Schedule Filing'
+  ];
+
+  for (const name of actions) {
+    const btn = page.getByRole('button', { name });
+    await expect(btn).toBeVisible();
+    // Some actions may be links instead of buttons depending on the UI
+    // Fallback: also check by text if role=button is not present
+    if (!await btn.isVisible()) {
+      await expect(page.getByText(name)).toBeVisible();
+    }
+  }
+
+  // Also assert presence of submission file list
+  await expect(page.getByText(/SUBMITTED FILES|Files to Submit/i)).toBeVisible();
+});
+
+
+
+
+

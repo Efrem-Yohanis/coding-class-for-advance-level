@@ -1,0 +1,59 @@
+
+Name
+
+Test Case 415050: Verify the Submit Files button and Final Confirmation page
+
+Manual test case - Steps and Expected Results
+
+Precondition: User is logged in (shared steps 413501) and the deal has the required SEC fields and files to submit.
+
+Steps:
+1. Navigate to ABS-EE Deal Home and locate the target deal.
+   - Expected: Deal row is visible and actions (View, Delete) are present.
+2. Click the "View" action to open the deal details.
+   - Expected: Deal detail view is accessible.
+3. Click "Submit Filing" to go to the Submission Details page.
+   - Expected: Submission Details loads and shows required SEC fields.
+4. Click the "Submit Files" button.
+   - Expected: The Final Confirmation page opens and shows confirmation content (e.g., heading "Final Confirmation" and listed files).
+5. Verify the Final Confirmation page displays the files to be submitted and any confirmation text.
+   - Expected: File list contains expected filenames and a confirmation action (e.g., "Confirm" or "Submit").
+
+Notes:
+- Use parameterized selectors or fixtures for the deal and file names for CI reliability.
+- Allow short timeouts for UI updates and longer timeouts if background submission processing is involved.
+
+
+Record
+
+import { test, expect } from '@playwright/test';
+
+test('415050 - Submit Files opens Final Confirmation', async ({ page }) => {
+  const jobRow = /Testing job|99 submission proof to be/; // parameterize for CI
+
+  // Navigate to Deals home (login handled externally)
+  await page.goto('https://13f-qa.azurewebsites.net/deals');
+  await page.getByRole('button', { name: 'ABS-EE Deal Home' }).click();
+  await expect(page.getByRole('heading', { name: 'ABS-EE Deal Home' })).toBeVisible();
+
+  // Open the deal
+  await page.getByRole('row', { name: jobRow }).getByRole('link', { name: /view|open/i }).click();
+
+  // Open Submission Details (assumes SEC is already filled)
+  await page.getByRole('link', { name: 'Submit Filing' }).click();
+  await expect(page.getByRole('heading', { name: 'Submission Details' })).toBeVisible();
+
+  // Click Submit Files and assert Final Confirmation appears
+  const submitFiles = page.getByRole('link', { name: 'Submit Files' });
+  await expect(submitFiles).toBeVisible();
+  await expect(submitFiles).toBeEnabled();
+  await submitFiles.click();
+
+  // Final Confirmation page should load
+  await expect(page.getByRole('heading', { name: 'Final Confirmation' })).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByText(/Files to Submit|Confirm/i)).toBeVisible();
+
+  // Optionally assert at least one expected filename is shown (parameterize filename in fixtures)
+  await expect(page.getByRole('cell', { name: /lease24babsee\.htm|lease24bex102\.xml|lease24bex103\.xml/i })).toBeVisible();
+});
+

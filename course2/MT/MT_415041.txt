@@ -1,0 +1,76 @@
+Test case name
+Test Case 415041: Verify that able to create a submission proof for newly uploaded ABSEE deal
+
+
+Manual test case - Steps and Expected Results
+
+Precondition: User is logged in (shared steps 413501) and the ABSEE deal has been created and uploaded with input files present (including EX-102 if testing the include flow).
+
+Steps:
+1. Navigate to the ABS-EE Deal Home and locate the newly created deal.
+   - Expected: The deal row is visible and shows actions (View, Delete).
+2. Click the "View" action for the deal.
+   - Expected: The deal details page opens and the "Submission Proof" section/button is visible.
+3. Click "Create" under Submission Proof.
+   - Expected: A confirmation dialog displays: "Do you want to include the contents of the EX-102 file in the submission proof?" with Yes and No options.
+4. Click "No" to create submission proof without EX-102.
+   - Expected: The Execution Status tab shows "Submission Proof completed" and "CompletedSuccessfully" when finished.
+5. (Optional) Repeat step 3 and click "Yes" to include EX-102.
+   - Expected: The Execution Status tab shows "Submission Proof completed" and "CompletedSuccessfully" when finished.
+
+Notes:
+- Allow adequate timeout (e.g., 60–120s) for submission proof processing.
+- Avoid repeating shared login steps to prevent duplicate sessions.
+
+Record
+
+import { test, expect } from '@playwright/test';
+
+test('415041 - Create submission proof (No and Yes flows)', async ({ page }) => {
+  const jobNumber = '99';
+  const dealName = 'submission proof to be deleted';
+  const periodEnd = '09-30-2024';
+  const uploadFiles = ['lease24babsee.htm', 'lease24bex102.xml', 'lease24bex103.xml']; // replace with real paths/fixtures
+
+  // Navigate to deals (assumes shared login steps are run separately)
+  await page.goto('https://13f-qa.azurewebsites.net/deals');
+  await page.getByRole('button', { name: 'ABS-EE Deal Home' }).click();
+  await expect(page.getByRole('heading', { name: 'ABS-EE Deal Home' })).toBeVisible();
+
+  // Create a deal (if needed) and open it
+  await page.getByRole('button', { name: 'Create New Deal' }).click();
+  await page.getByRole('textbox', { name: 'Job Number' }).fill(jobNumber);
+  await page.getByRole('textbox', { name: 'Deal Name*' }).fill(dealName);
+  await page.getByRole('textbox', { name: 'Period End Date*' }).fill(periodEnd);
+  await page.getByLabel('ABS Schema Type*').selectOption('2');
+  await page.getByRole('button', { name: 'Create', exact: true }).click();
+
+  await expect(page.getByRole('row', { name: new RegExp(`${jobNumber} ${dealName} ${periodEnd}`) })).toBeVisible({ timeout: 30_000 });
+  await page.getByRole('row', { name: new RegExp(`${jobNumber} ${dealName} ${periodEnd}`) }).getByRole('link', { name: /view/i }).click();
+
+  // Upload files
+  const uploadBtn = page.getByRole('button', { name: 'Upload' });
+  await uploadBtn.setInputFiles(uploadFiles);
+  await page.getByText('Execution Status').click();
+  await expect(page.getByText(/CompletedSuccessfully/i)).toBeVisible({ timeout: 120_000 });
+
+  // Perform validation and wait for completion
+  await page.getByRole('button', { name: 'Perform Validation' }).click();
+  await expect(page.getByText(/ABS-EE Validation completed/i)).toBeVisible({ timeout: 60_000 });
+
+  // Create Submission Proof - NO flow
+  await page.locator('span').filter({ hasText: 'Validation Results' }).click();
+  await page.getByText('Submission Proof').click();
+  await page.getByRole('button', { name: 'Create' }).click();
+  await expect(page.getByText(/Do you want to include the contents of the EX-102 file/i)).toBeVisible();
+  await page.getByRole('button', { name: 'No' }).click();
+  await page.getByText('Execution Status').click();
+  await expect(page.getByText(/Submission Proof completed/i)).toBeVisible({ timeout: 120_000 });
+  await expect(page.getByText(/CompletedSuccessfully/i)).toBeVisible();
+
+  // Optionally test YES flow (uncomment if EX-102 present and you want to include it)
+  // await page.getByRole('button', { name: 'Create' }).click();
+  // await page.getByRole('button', { name: 'Yes' }).click();
+  // await page.getByText('Execution Status').click();
+  // await expect(page.getByText(/Submission Proof completed/i)).toBeVisible({ timeout: 120_000 });
+});

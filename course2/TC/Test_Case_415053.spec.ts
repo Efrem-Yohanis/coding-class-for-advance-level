@@ -1,5 +1,5 @@
 const { test, expect } = require('@playwright/test');
-const testData = require('./testData.json');
+const testData = require('../utility/test_data.json');
 
 test('Test Case 415053: Verify the result for the Download Current Submission button', async ({ page }) => {
   const data = testData.TC_415053;
