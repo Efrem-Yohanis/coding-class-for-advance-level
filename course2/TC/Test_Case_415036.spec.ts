@@ -255,3 +255,16 @@ await page.getByRole('option', { name: SCHEMA_TYPE }).click();
 
 // --- Finalize ---
 await page.getByRole('button', { name: 'Create', exact: true }).click();
+
+
+===================
+
+  Filing type
+  <select required="" id="type" class="form-control"><option value="1" style="background: white;">ABS-EE</option><option value="3" style="background: white;">ABS-EE/A</option><option value="4" style="background: white;">10-D</option><option value="5" style="background: white;">10-D/A</option></select>
+
+
+  =======================
+
+  Schema
+
+<select required="" id="absSchema" class="form-control"><option value="1" style="background: white;">Auto Loan</option><option value="2" style="background: white;">Auto Lease</option><option value="3" style="background: white;">CMBS</option><option value="4" style="background: white;">RMBS</option><option value="5" style="background: white;">Debt Securities</option><option value="6" style="background: white;">Other</option></select>
