@@ -177,3 +177,11 @@ test('test', async ({ page }) => {
   await page.getByText('ABS Schema Type*').click();
   await page.getByRole('button', { name: 'Create', exact: true }).click();
 });
+================================
+import { test, expect } from '@playwright/test';
+
+test('test', async ({ page }) => {
+  await page.getByText('Company', { exact: true }).click();
+  await page.locator('#selectedCompany').selectOption('22');
+});
+  
