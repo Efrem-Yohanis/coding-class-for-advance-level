@@ -17,12 +17,12 @@ test('415036 - Create and upload ABSEE deal', async ({ page }) => {
 const FILE_PATH = path.resolve(__dirname, '..', 'Resource', 'Blast1-UATDecember2025_1229.zip');
 
   // ---------- 1. LOGIN ----------
-  await page.goto("https://13f-qa.azurewebsites.net/");
+  await page.goto("xxxxxx");
   
   await page.getByRole('button', { name: 'Sign in with DFIN Account' }).click();
-  await page.getByRole('textbox', { name: 'Email address' }).fill("biniyam.a.gebeyehu@dfinsolutions.com");
+  await page.getByRole('textbox', { name: 'Email address' }).fill("xxxxxx.com");
   await page.getByRole('button', { name: 'Continue' }).click();
-  await page.getByRole('textbox', { name: /Enter the password/i }).fill("Alem123123*");
+  await page.getByRole('textbox', { name: /Enter the password/i }).fill("xxxxxx");
   await page.getByRole('button', { name: 'Sign in' }).click();
 
   // Handle MFA
