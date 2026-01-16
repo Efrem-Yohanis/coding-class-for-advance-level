@@ -218,3 +218,9 @@ test('test', async ({ page }) => {
   await page.getByRole('cell', { name: '7777' }).click();
   await page.getByText('wow').click();
 });
+==============================import { test, expect } from '@playwright/test';
+
+test('test', async ({ page }) => {
+  await page.getByText('Filing Type*').click();
+   await page.getByText('ABS Schema Type*').click();
+});
