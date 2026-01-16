@@ -1,306 +1,74 @@
 const { test, expect } = require('@playwright/test');
-const testData = require('../utility/test_data.json');
 
-// Increase timeout to accommodate creation + upload + processing
 test.setTimeout(180_000);
 
 test('415036 - Create and upload ABSEE deal', async ({ page }) => {
-  const data = testData['415036'];
-  const rowRegex = new RegExp(`${data.jobNumber} ${data.dealName} ${data.periodEnd}`);
+  // --- 1. HARD-CODED INPUT DATA ---
+  const COMPANY_NAME = 'Automation'; 
+  const JOB_NUMBER = 'JOB-12345';
+  const DEAL_NAME = 'Automation_Test_Deal_001';
+  const PERIOD_END = '2023-12-31';
+  const TARGET_FILING_DATE = '2026-01-16';
+  const SCHEMA_TYPE = 'Auto Loan'; 
+  const FILING_TYPE = 'ABS-EE'; 
+  const FILE_PATH = './test-files/sample_absee.zip'; 
 
-  // ---------- 1. LOGIN (mandatory) ----------
-  await page.goto('url');
+  const rowRegex = new RegExp(`${JOB_NUMBER}.*${DEAL_NAME}`);
+
+  // --- 1. NAVIGATION to website
+  await page.goto('https://13f-qa.azurewebsites.net/');
+
+
+  // --- 2. LOGIN FLOW ---
   await page.getByRole('button', { name: 'Sign in with DFIN Account' }).click();
   await page.getByRole('textbox', { name: 'Email address' }).fill(process.env.TEST_USER_EMAIL || 'xxxx@email.com');
   await page.getByRole('button', { name: 'Continue' }).click();
   await page.getByRole('textbox', { name: /Enter the password/i }).fill(process.env.TEST_USER_PASSWORD || 'xxxx');
   await page.getByRole('button', { name: 'Sign in' }).click();
 
-  // Handle MFA
-  const mfaOption = page.getByRole('button', { name: 'Approve a request on my Microsoft Authenticator app' });
-  if (await mfaOption.isVisible({ timeout: 5000 })) {
-    await mfaOption.click();
-    console.log('Action Required: Approve the notification on your mobile device...');
-    await page.waitForTimeout(20000);
-  }
-
-  // Handle "Stay Signed In" prompt
+  // Handle "Stay Signed In" prompt if it appears
   const staySignedInNo = page.locator('#idBtn_Back');
   if (await staySignedInNo.isVisible({ timeout: 5000 })) {
     await staySignedInNo.click();
   }
 
-
-  // Selecting "Automation" from Company Dropdown (Manual Step 4)
-  await page.locator('#selectedCompany').selectOption({ label: COMPANY_NAME });
-  
-// ---------- 3. CREATE NEW DEAL ----------
-await page.getByRole('button', { name: 'Create New Deal' }).click();
-await expect(page.getByText('Filings Details')).toBeVisible();
-
-// Fill Text Fields
-await page.getByRole('textbox', { name: 'Job Number' }).fill(JOB_NUMBER);
-await page.getByRole('textbox', { name: 'Deal Name*' }).fill(DEAL_NAME);
-await page.getByRole('textbox', { name: 'Period End Date*' }).fill(PERIOD_END);
-await page.getByRole('textbox', { name: 'Target Filing Date*' }).fill(TARGET_FILING_DATE);
-
-// --- Fixed Dropdowns ---
-// We use the IDs from your HTML: 'type' and 'absSchema'
-await page.locator('#type').selectOption({ label: FILING_TYPE });
-await page.locator('#absSchema').selectOption({ label: SCHEMA_TYPE });
-
-await page.getByRole('button', { name: 'Create', exact: true }).click();
-
-  // Verify deal appears in table
-  await expect(page.getByRole('row', { name: rowRegex })).toBeVisible({ timeout: 30_000 });
-
-  // ---------- 3. Open deal & Upload ----------
-  await page.getByRole('row', { name: rowRegex }).getByRole('link', { name: /view/i }).click();
-  await expect(page.getByRole('heading', { name: /FILE UPLOAD DETAILS|Files/i })).toBeVisible();
-
-  const uploadButton = page.getByRole('button', { name: 'Upload' });
-  await expect(uploadButton).toBeVisible();
-
-  // Use configured upload path (ensure file exists in CI or local before running)
-  await uploadButton.setInputFiles(data.uploadFilePath);
-
-  // Wait for processing to complete
-  await page.getByText('Execution Status').click();
-  await expect(page.getByText(/CompletedSuccessfully/i)).toBeVisible({ timeout: 180_000 });
-
-  // Optionally assert uploaded file shows up in the UI
-  await expect(page.getByText(/File upload queue|Uploaded/i)).toBeVisible({ timeout: 30_000 });
-});
-
--------------------------------------------------------------------
-const { test, expect } = require('@playwright/test');
-
-test.setTimeout(180_000);
-
-test('415036 - Create and upload ABSEE deal (Hard-coded)', async ({ page }) => {
-  // --- HARD-CODED INPUT DATA ---
-  const JOB_NUMBER = 'JOB-12345';
-  const DEAL_NAME = 'Automation_Test_Deal_001';
-  const PERIOD_END = '2023-12-31';
-  const SCHEMA_TYPE = 'Industrial'; // Replace with your actual dropdown option text
-  const FILE_PATH = './test-files/sample_absee.zip'; // Ensure this file exists locally
-  
-  // Regex to find the row in the table later
-  const rowRegex = new RegExp(`${JOB_NUMBER}.*${DEAL_NAME}`);
-
-  // ---------- 1. LOGIN ----------
-  await page.goto('https://your-app-url.com'); // REPLCE WITH ACTUAL URL
-  
-  await page.getByRole('button', { name: 'Sign in with DFIN Account' }).click();
-  await page.getByRole('textbox', { name: 'Email address' }).fill('your-email@dfin.com');
-  await page.getByRole('button', { name: 'Continue' }).click();
-  await page.getByRole('textbox', { name: /Enter the password/i }).fill('YourPassword123!');
-  await page.getByRole('button', { name: 'Sign in' }).click();
-
-  // Handle MFA (Manual Intervention Pause)
-  const mfaOption = page.getByRole('button', { name: 'Approve a request on my Microsoft Authenticator app' });
-  if (await mfaOption.isVisible({ timeout: 5000 })) {
-    await mfaOption.click();
-    console.log('>>> Please approve MFA on your phone now...');
-    // Wait for the dashboard to load as proof MFA passed
-    await page.waitForURL('**/dashboard**', { timeout: 60000 });
-  }
-
-  const staySignedInNo = page.locator('#idBtn_Back');
-  if (await staySignedInNo.isVisible({ timeout: 5000 })) {
-    await staySignedInNo.click();
-  }
-
-  // ---------- 2. ABS-EE HOME & COMPANY SELECTION ----------
+  // --- 3. Navigate to the Deal Home
   await page.getByRole('button', { name: 'ABS-EE Deal Home' }).click();
-  
-  // Selecting "Automation" from Company Dropdown (Manual Step 4)
-  await page.getByLabel(/Company/i).click();
-  await page.getByRole('option', { name: 'Automation' }).click();
 
-  // ---------- 3. CREATE NEW DEAL ----------
+  // --- 4. CREATE NEW DEAL ---
+  await page.locator('#selectedCompany').selectOption({ label: COMPANY_NAME });
   await page.getByRole('button', { name: 'Create New Deal' }).click();
   await expect(page.getByText('Filings Details')).toBeVisible();
-
   await page.getByRole('textbox', { name: 'Job Number' }).fill(JOB_NUMBER);
   await page.getByRole('textbox', { name: 'Deal Name*' }).fill(DEAL_NAME);
   await page.getByRole('textbox', { name: 'Period End Date*' }).fill(PERIOD_END);
-  
-  // Selecting the Schema Type dropdown
-  await page.getByLabel('ABS Schema Type*').selectOption({ label: SCHEMA_TYPE });
-  
+  await page.getByRole('textbox', { name: 'Target Filing Date*' }).fill(TARGET_FILING_DATE);
+  await page.locator('#type').selectOption({ label: FILING_TYPE });
+  await page.locator('#absSchema').selectOption({ label: SCHEMA_TYPE });
   await page.getByRole('button', { name: 'Create', exact: true }).click();
-
-  // ---------- 4. FIND DEAL IN TABLE & VIEW ----------
-  // We look for the row containing our hard-coded Job Number and Deal Name
   const dealRow = page.getByRole('row', { name: rowRegex });
   await expect(dealRow).toBeVisible({ timeout: 30_000 });
   await dealRow.getByRole('link', { name: /view/i }).click();
 
-  // ---------- 5. UPLOAD FILE ----------
-  await expect(page.getByRole('heading', { name: /FILE UPLOAD DETAILS/i })).toBeVisible();
 
-  // Triggering the file picker
+  // --- 6. VERIFICATION & NAVIGATION ---
+// This creates a pattern to find your deal name anywhere in the row
+const rowRegex = new RegExp(DEAL_NAME); 
+
+// Find the row and click 'View'
+const dealRow = page.getByRole('row', { name: rowRegex });
+await expect(dealRow).toBeVisible();
+await dealRow.getByRole('link', { name: /view/i }).click();
+  
+  // File Upload logic
+  const fileInput = page.locator('input[type="file"]');
+  // If the input is hidden, use the filechooser event:
   const fileChooserPromise = page.waitForEvent('filechooser');
-  await page.getByRole('button', { name: 'Upload' }).click();
+  await page.getByRole('button', { name: /Upload/i }).click();
   const fileChooser = await fileChooserPromise;
   await fileChooser.setFiles(FILE_PATH);
 
-  // ---------- 6. VERIFY STATUS ----------
-  // We check for the completion text. 
-  // If the UI doesn't auto-refresh, you might need to add: await page.reload();
-  const statusLocator = page.getByText(/CompletedSuccessfully/i);
-  await expect(statusLocator).toBeVisible({ timeout: 120_000 });
-  
+  // --- 6. VERIFY COMPLETION ---
+  await expect(page.getByText(/CompletedSuccessfully/i)).toBeVisible({ timeout: 120_000 });
   console.log('Test Completed Successfully!');
-});
-
-
-
-
-===============================================
-  import { test, expect } from '@playwright/test';
-
-test('test', async ({ page }) => {
-  await page.goto('https://13f-qa.azurewebsites.net/abs-deals');
-  await page.getByRole('button', { name: 'Companies' }).click();
-  await page.getByRole('button', { name: 'Create New Company' }).click();
-  await page.getByRole('textbox', { name: 'Name*' }).click();
-  await page.getByRole('textbox', { name: 'Name*' }).fill('xxxx');
-  await page.getByRole('textbox', { name: 'PGP Key Name' }).click();
-  await page.getByRole('textbox', { name: 'PGP Key Name' }).fill('xxx');
-  await page.getByRole('textbox', { name: 'Link to Notes' }).click();
-  await page.getByRole('textbox', { name: 'Link to Notes' }).fill('x');
-  await page.getByRole('button', { name: 'Create', exact: true }).click();
-  await page.getByRole('button', { name: 'ABS-EE Deal Home' }).click();
-  await page.getByRole('button', { name: 'Create New Deal' }).click();
-  await page.getByText('Filings Details').click();
-  await page.getByRole('textbox', { name: 'Job Number' }).click();
-  await page.getByText('Deal Name*').click();
-  await page.locator('div').filter({ hasText: /^Deal Name\*$/ }).click();
-  await page.getByText('Period End Date*').click();
-  await page.getByRole('textbox', { name: 'Period End Date*' }).click();
-  await page.getByText('Target Filing Date*').click();
-  await page.getByText('Filing Type*ABS-EEABS-EE/A10-').click();
-  await page.getByText('ABS Schema Type*').click();
-  await page.getByRole('button', { name: 'Create', exact: true }).click();
-});
-================================
-import { test, expect } from '@playwright/test';
-
-test('test', async ({ page }) => {
-  await page.getByText('Company', { exact: true }).click();
-  await page.locator('#selectedCompany').selectOption('22');
-});
-  ===================================
-    import { test, expect } from '@playwright/test';
-
-test('test', async ({ page }) => {
-  await page.goto('https://13f-qa.azurewebsites.net/');
-  await page.getByRole('button', { name: 'Sign in with DFIN Account' }).click();
-  await page.getByRole('textbox', { name: 'Email address' }).press('CapsLock');
-  await page.getByRole('textbox', { name: 'Email address' }).fill('A');
-  await page.getByRole('textbox', { name: 'Email address' }).press('CapsLock');
-  await page.getByRole('textbox', { name: 'Email address' }).fill('x*');
-  await page.getByRole('button', { name: 'Continue' }).click();
-  await page.getByRole('textbox', { name: 'Email address' }).fill('xxxx');
-  await page.getByRole('button', { name: 'Continue' }).click();
-  await page.locator('#i0118').press('CapsLock');
-  await page.getByRole('textbox', { name: 'Enter the password for' }).fill('A');
-  await page.getByRole('textbox', { name: 'Enter the password for' }).press('CapsLock');
-  await page.getByRole('textbox', { name: 'Enter the password for' }).fill('xxxxxx');
-  await page.getByRole('button', { name: 'Sign in' }).click();
-  await page.goto('https://13f-qa.azurewebsites.net/deals');
-  await page.getByRole('button', { name: 'ABS-EE Deal Home' }).click();
-  await page.locator('#selectedCompany').selectOption('22');
-  await page.getByRole('button', { name: 'Create New Deal' }).click();
-  await page.getByRole('textbox', { name: 'Job Number' }).click();
-  await page.getByRole('textbox', { name: 'Job Number' }).fill('7777');
-  await page.getByRole('textbox', { name: 'Deal Name*' }).click();
-  await page.getByRole('textbox', { name: 'Deal Name*' }).fill('wow');
-  await page.getByRole('textbox', { name: 'Period End Date*' }).click();
-  await page.getByRole('option', { name: 'Choose Friday, January 16th,' }).click();
-  await page.getByRole('textbox', { name: 'Target Filing Date*' }).click();
-  await page.getByRole('option', { name: 'Choose Friday, January 16th,' }).click();
-  await page.getByRole('button', { name: 'Create', exact: true }).click();
-  await page.getByRole('cell', { name: '7777' }).click();
-  await page.getByText('wow').click();
-});
-==============================import { test, expect } from '@playwright/test';
-
-test('test', async ({ page }) => {
-  await page.getByText('Filing Type*').click();
-   await page.getByText('ABS Schema Type*').click();
-});
-==============================================================
-// --- HARD-CODED INPUT DATA ---
-  const COMPANY_NAME = 'Automation'; // The variable you wanted
-  const JOB_NUMBER = 'JOB-12345';
-  const DEAL_NAME = 'Automation_Test_Deal_001';
-  const PERIOD_END = '2023-12-31';
-  const TARGET_FILING_DATE = '2026-01-16';
-  const SCHEMA_TYPE = 'Auto Loan'; // Replace with your actual dropdown option text
-  const FILING_TYPE = 'ABS-EE'; // Replace with your actual dropdown option text
-  const FILE_PATH = './test-files/sample_absee.zip'; // Ensure this file exists locally
-
-// Selecting "Automation" from Company Dropdown (Manual Step 4)
-  await page.locator('#selectedCompany').selectOption({ label: COMPANY_NAME });
-  
-  // ---------- 3. CREATE NEW DEAL ----------
-await page.getByRole('button', { name: 'Create New Deal' }).click();
-await expect(page.getByText('Filings Details')).toBeVisible();
-
-await page.getByRole('textbox', { name: 'Job Number' }).fill(JOB_NUMBER);
-await page.getByRole('textbox', { name: 'Deal Name*' }).fill(DEAL_NAME);
-await page.getByRole('textbox', { name: 'Period End Date*' }).fill(PERIOD_END);
-await page.getByRole('textbox', { name: 'Target Filing Date*' }).fill(TARGET_FILING_DATE);
-
-// --- Handle Filing Type Dropdown ---
-await page.getByLabel('Filing Type*').click(); // Opens the dropdown
-// Using getByRole('option') is best for ARIA-compliant dropdowns
-await page.getByRole('option', { name: FILING_TYPE }).click(); 
-
-// --- Handle ABS Schema Type Dropdown ---
-await page.getByLabel('ABS Schema Type*').click(); // Opens the dropdown
-await page.getByRole('option', { name: SCHEMA_TYPE }).click();
-
-// --- Finalize ---
-await page.getByRole('button', { name: 'Create', exact: true }).click();
-
-
-===================
-
-  Filing type
-  <select required="" id="type" class="form-control"><option value="1" style="background: white;">ABS-EE</option><option value="3" style="background: white;">ABS-EE/A</option><option value="4" style="background: white;">10-D</option><option value="5" style="background: white;">10-D/A</option></select>
-
-
-  =======================
-
-  Schema
-
-<select required="" id="absSchema" class="form-control"><option value="1" style="background: white;">Auto Loan</option><option value="2" style="background: white;">Auto Lease</option><option value="3" style="background: white;">CMBS</option><option value="4" style="background: white;">RMBS</option><option value="5" style="background: white;">Debt Securities</option><option value="6" style="background: white;">Other</option></select>
-
-  ============================
-
-  Compay 
-
-<select required="" id="selectedCompany" class="form-control"><option value="19" style="background: white;">Auto</option><option value="22" style="background: white;">Automation</option><option value="10" style="background: white;">Dawn Cross</option><option value="4" style="background: white;">dfsco</option><option value="9" style="background: white;">emanuel.jimenez@dfinsolutions.com</option><option value="21" style="background: white;">final to uat</option><option value="18" style="background: white;">QA TESTING NEW CO</option><option value="16" style="background: white;">tessssssssssssssss</option><option value="12" style="background: white;">test</option><option value="6" style="background: white;">Test Adithya</option><option value="5" style="background: white;">Test Company &lt;eric.johnson1@dfinsolutions.com&gt;</option><option value="11" style="background: white;">Test Kiran</option><option value="2" style="background: white;">Test New</option><option value="17" style="background: white;">TEST sat</option><option value="1" style="background: white;">TestCompany</option><option value="15" style="background: white;">Testing company new 917</option><option value="13" style="background: white;">Testing company new items</option><option value="23" style="background: white;">xxxx</option><option value="8" style="background: white;">xyzco</option></select>
-================================================
-  import { test, expect } from '@playwright/test';
-
-test('test', async ({ page }) => {
-  await page.goto('https://13f-qa.azurewebsites.net/abs-deals');
-  await page.getByRole('button', { name: 'ABS-EE Deal Home' }).click();
-  await page.getByRole('button', { name: 'ABS-EE Deal Home' }).click();
-  await page.getByRole('button', { name: 'ABS-EE Deal Home' }).click();
-  await page.locator('div').filter({ hasText: 'Job NumberDeal NameNumber Of' }).nth(5).click();
-  await page.getByText('45456').click();
-  await expect(page.getByLabel('Deal Name sort asc')).toContainText('Deal Name');
-  await page.getByText('45456').click();
-  await page.getByRole('columnheader', { name: 'Deal Name sort asc' }).click();
-  await page.getByText('tt', { exact: true }).click();
-  await page.getByRole('row', { name: '66 tt 09-30-2024 01-11-2026' }).getByRole('link').click();
-  await page.getByRole('row', { name: '777 45456 01-12-2026 01-12-' }).getByRole('link').click();
-  await page.getByRole('heading', { name: 'Files' }).click();
-  await page.getByRole('button', { name: 'Upload' }).click();
 });
