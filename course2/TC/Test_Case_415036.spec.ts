@@ -30,9 +30,10 @@ test('415036 - Create and upload ABSEE deal', async ({ page }) => {
     await staySignedInNo.click();
   }
 
-  // ---------- 3. Create New Deal ----------
- // ... constants above ...
 
+  // Selecting "Automation" from Company Dropdown (Manual Step 4)
+  await page.locator('#selectedCompany').selectOption({ label: COMPANY_NAME });
+  
 // ---------- 3. CREATE NEW DEAL ----------
 await page.getByRole('button', { name: 'Create New Deal' }).click();
 await expect(page.getByText('Filings Details')).toBeVisible();
@@ -233,6 +234,7 @@ test('test', async ({ page }) => {
 });
 ==============================================================
 // --- HARD-CODED INPUT DATA ---
+  const COMPANY_NAME = 'Automation'; // The variable you wanted
   const JOB_NUMBER = 'JOB-12345';
   const DEAL_NAME = 'Automation_Test_Deal_001';
   const PERIOD_END = '2023-12-31';
@@ -241,7 +243,9 @@ test('test', async ({ page }) => {
   const FILING_TYPE = 'ABS-EE'; // Replace with your actual dropdown option text
   const FILE_PATH = './test-files/sample_absee.zip'; // Ensure this file exists locally
 
-
+// Selecting "Automation" from Company Dropdown (Manual Step 4)
+  await page.locator('#selectedCompany').selectOption({ label: COMPANY_NAME });
+  
   // ---------- 3. CREATE NEW DEAL ----------
 await page.getByRole('button', { name: 'Create New Deal' }).click();
 await expect(page.getByText('Filings Details')).toBeVisible();
