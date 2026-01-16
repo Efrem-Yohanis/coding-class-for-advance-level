@@ -1,6 +1,6 @@
 const { test, expect } = require('@playwright/test');
 const path = require('path');
-
+ import fs from 'fs';
 test.setTimeout(180_000);
 
 test('415036 - Create and upload ABSEE deal', async ({ page }) => {
@@ -14,7 +14,7 @@ test('415036 - Create and upload ABSEE deal', async ({ page }) => {
   const FILING_TYPE = 'ABS-EE';
   
   // Joins current directory + Resource folder + filename
-  const FILE_PATH = path.join(__dirname, 'Resource', 'Aurora Lease 1November2025_1120_AutoLease.zip');
+const FILE_PATH = path.resolve(__dirname, '..', 'Resource', 'Blast1-UATDecember2025_1229.zip');
 
   // ---------- 1. LOGIN ----------
   await page.goto("https://13f-qa.azurewebsites.net/");
@@ -77,38 +77,13 @@ test('415036 - Create and upload ABSEE deal', async ({ page }) => {
   await expect(uploadButton).toBeVisible();
   
   // setInputFiles handles the OS file dialog automatically
-  await uploadButton.setInputFiles(FILE_PATH);
+  await page.locator('input[type="file"]').setInputFiles(FILE_PATH);
 
   // ---------- 6. VERIFY STATUS ----------
-  await page.getByText('File upload queue').click();
+  // await page.getByText('File upload queue').click();
 
   const statusContainer = page.locator('#page-content-wrapper');
   // Ensuring we see the "CompletedSuccessfully" message
-  await expect(statusContainer).toContainText('CompletedSuccessfully', { timeout: 180000 });
+  await expect(statusContainer).toContainText('Finished Upload ABSEE', { timeout: 180000 });
  
 });
-
-
-
-===================
-  Running 1 test using 1 worker
-  1) [chromium] › tests\ABS-EE\absee-createandupload_415036.spec.ts:6:1 › 415036 - Create and upload ABSEE deal
-
-    Error: ENOENT: no such file or directory, stat 'C:\AB2 Playwright Project\tests\ABS-EE\Resource\Aurora Lease 1November2025_1120_AutoLease.zip'
-
-      78 |
-      79 |   // setInputFiles handles the OS file dialog automatically
-    > 80 |   await uploadButton.setInputFiles(FILE_PATH);
-         |   ^
-      81 |
-      82 |   // ---------- 6. VERIFY STATUS ----------
-      83 |   // await page.getByText('File upload queue').click();
-        at C:\AB2 Playwright Project\tests\ABS-EE\absee-createandupload_415036.spec.ts:80:3
-
-    Error Context: test-results\ABS-EE-absee-createanduplo-18a19-reate-and-upload-ABSEE-deal-chromium\error-context.md
-
-  1 failed
-    [chromium] › tests\ABS-EE\absee-createandupload_415036.spec.ts:6:1 › 415036 - Create and upload ABSEE deal
-
-
-await page.locator('input[type="file"]').setInputFiles(FILE_PATH);
