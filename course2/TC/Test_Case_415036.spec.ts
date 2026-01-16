@@ -109,3 +109,6 @@ test('415036 - Create and upload ABSEE deal', async ({ page }) => {
 
   1 failed
     [chromium] › tests\ABS-EE\absee-createandupload_415036.spec.ts:6:1 › 415036 - Create and upload ABSEE deal
+
+
+await page.locator('input[type="file"]').setInputFiles(FILE_PATH);
