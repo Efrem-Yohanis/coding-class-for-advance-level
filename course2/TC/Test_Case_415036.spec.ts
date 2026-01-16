@@ -275,3 +275,9 @@ await page.getByRole('button', { name: 'Create', exact: true }).click();
   Schema
 
 <select required="" id="absSchema" class="form-control"><option value="1" style="background: white;">Auto Loan</option><option value="2" style="background: white;">Auto Lease</option><option value="3" style="background: white;">CMBS</option><option value="4" style="background: white;">RMBS</option><option value="5" style="background: white;">Debt Securities</option><option value="6" style="background: white;">Other</option></select>
+
+  ============================
+
+  Compay 
+
+<select required="" id="selectedCompany" class="form-control"><option value="19" style="background: white;">Auto</option><option value="22" style="background: white;">Automation</option><option value="10" style="background: white;">Dawn Cross</option><option value="4" style="background: white;">dfsco</option><option value="9" style="background: white;">emanuel.jimenez@dfinsolutions.com</option><option value="21" style="background: white;">final to uat</option><option value="18" style="background: white;">QA TESTING NEW CO</option><option value="16" style="background: white;">tessssssssssssssss</option><option value="12" style="background: white;">test</option><option value="6" style="background: white;">Test Adithya</option><option value="5" style="background: white;">Test Company &lt;eric.johnson1@dfinsolutions.com&gt;</option><option value="11" style="background: white;">Test Kiran</option><option value="2" style="background: white;">Test New</option><option value="17" style="background: white;">TEST sat</option><option value="1" style="background: white;">TestCompany</option><option value="15" style="background: white;">Testing company new 917</option><option value="13" style="background: white;">Testing company new items</option><option value="23" style="background: white;">xxxx</option><option value="8" style="background: white;">xyzco</option></select>
