@@ -30,18 +30,25 @@ test('415036 - Create and upload ABSEE deal', async ({ page }) => {
     await staySignedInNo.click();
   }
 
-  // ---------- 2. Create New Deal ----------
-  await page.getByRole('button', { name: 'ABS-EE Deal Home' }).click();
-  await page.getByRole('button', { name: 'Create New Deal' }).click();
-  await expect(page.getByText('Filings Details')).toBeVisible();
+  // ---------- 3. Create New Deal ----------
+ // ... constants above ...
 
-  await page.getByRole('textbox', { name: 'Job Number' }).fill(data.jobNumber);
-  await page.getByRole('textbox', { name: 'Deal Name*' }).fill(data.dealName);
-  await page.getByRole('textbox', { name: 'Period End Date*' }).fill(data.periodEnd);
-  if (data.schemaOption) {
-    await page.getByLabel('ABS Schema Type*').selectOption(String(data.schemaOption));
-  }
-  await page.getByRole('button', { name: 'Create', exact: true }).click();
+// ---------- 3. CREATE NEW DEAL ----------
+await page.getByRole('button', { name: 'Create New Deal' }).click();
+await expect(page.getByText('Filings Details')).toBeVisible();
+
+// Fill Text Fields
+await page.getByRole('textbox', { name: 'Job Number' }).fill(JOB_NUMBER);
+await page.getByRole('textbox', { name: 'Deal Name*' }).fill(DEAL_NAME);
+await page.getByRole('textbox', { name: 'Period End Date*' }).fill(PERIOD_END);
+await page.getByRole('textbox', { name: 'Target Filing Date*' }).fill(TARGET_FILING_DATE);
+
+// --- Fixed Dropdowns ---
+// We use the IDs from your HTML: 'type' and 'absSchema'
+await page.locator('#type').selectOption({ label: FILING_TYPE });
+await page.locator('#absSchema').selectOption({ label: SCHEMA_TYPE });
+
+await page.getByRole('button', { name: 'Create', exact: true }).click();
 
   // Verify deal appears in table
   await expect(page.getByRole('row', { name: rowRegex })).toBeVisible({ timeout: 30_000 });
