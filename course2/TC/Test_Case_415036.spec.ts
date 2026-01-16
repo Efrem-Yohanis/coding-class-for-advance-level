@@ -285,3 +285,22 @@ await page.getByRole('button', { name: 'Create', exact: true }).click();
   Compay 
 
 <select required="" id="selectedCompany" class="form-control"><option value="19" style="background: white;">Auto</option><option value="22" style="background: white;">Automation</option><option value="10" style="background: white;">Dawn Cross</option><option value="4" style="background: white;">dfsco</option><option value="9" style="background: white;">emanuel.jimenez@dfinsolutions.com</option><option value="21" style="background: white;">final to uat</option><option value="18" style="background: white;">QA TESTING NEW CO</option><option value="16" style="background: white;">tessssssssssssssss</option><option value="12" style="background: white;">test</option><option value="6" style="background: white;">Test Adithya</option><option value="5" style="background: white;">Test Company &lt;eric.johnson1@dfinsolutions.com&gt;</option><option value="11" style="background: white;">Test Kiran</option><option value="2" style="background: white;">Test New</option><option value="17" style="background: white;">TEST sat</option><option value="1" style="background: white;">TestCompany</option><option value="15" style="background: white;">Testing company new 917</option><option value="13" style="background: white;">Testing company new items</option><option value="23" style="background: white;">xxxx</option><option value="8" style="background: white;">xyzco</option></select>
+================================================
+  import { test, expect } from '@playwright/test';
+
+test('test', async ({ page }) => {
+  await page.goto('https://13f-qa.azurewebsites.net/abs-deals');
+  await page.getByRole('button', { name: 'ABS-EE Deal Home' }).click();
+  await page.getByRole('button', { name: 'ABS-EE Deal Home' }).click();
+  await page.getByRole('button', { name: 'ABS-EE Deal Home' }).click();
+  await page.locator('div').filter({ hasText: 'Job NumberDeal NameNumber Of' }).nth(5).click();
+  await page.getByText('45456').click();
+  await expect(page.getByLabel('Deal Name sort asc')).toContainText('Deal Name');
+  await page.getByText('45456').click();
+  await page.getByRole('columnheader', { name: 'Deal Name sort asc' }).click();
+  await page.getByText('tt', { exact: true }).click();
+  await page.getByRole('row', { name: '66 tt 09-30-2024 01-11-2026' }).getByRole('link').click();
+  await page.getByRole('row', { name: '777 45456 01-12-2026 01-12-' }).getByRole('link').click();
+  await page.getByRole('heading', { name: 'Files' }).click();
+  await page.getByRole('button', { name: 'Upload' }).click();
+});
