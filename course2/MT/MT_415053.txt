@@ -1,59 +1,63 @@
+Test name
+415053	Test Case	Verify the result for the Download Current Submission button
 
+Manual test case - Steps and Expected Results
 
+Precondition: User is logged in (shared steps 413501) and has access to the ABS-EE Deal Home page. A deal with uploaded ABSEE files exists and SEC information is configured.
 
-Name
+Clean, step-by-step procedure:
+1. Navigate to the ABS-EE Deal Home.
+   - Expected: User navigates to the ABS-EE Deal Home landing page.
+2. Locate and open a newly created and uploaded ABSEE deal.
+   - Expected: The deal is available with details and View and Delete buttons are also available.
+3. Click the 'View' button.
+   - Expected: View button is accessible and clickable to user.
+4. Check for the Submit Filing button.
+   - Expected: Submit Filing button is available and clickable.
+5. Click the Submit Files button.
+   - Expected: Submit Files button is enabled and Final Confirmation page opens.
+6. Check for the Create Submission and Download button on the Final Confirmation page.
+   - Expected: Create Submission and Download button is enabled by default and clickable for user, and download is successful.
+7. Check Download Current Submission button is enabled.
+   - Expected: Download Current Submission button is enabled and clickable for user.
+8. Click the Download Current Submission button.
+   - Expected: ResultSubmission.zip folder with XML file is downloaded and content matches.
 
+Notes:
+- Ensure the deal has completed all necessary preparation steps before attempting download.
+- Verify downloaded ZIP contains expected XML files with correct content.
 
-Test Case 415053: Verify the result for the Download Current Submission button
-
-
-Manual test case
-
-415053	Test Case	Verify the result for the Download Current Submission button				
-			1	Shared steps 413501: Login into AB2 site				
-			2	Click on ABSEE Deal icon	Verify user navigates to the ABSEE Deal Home landing page			
-			3	Go to newly created and uploaded ABSEE deal	Verify the new deal is available with details and View and Delete button are also available			
-			4	Click on 'View' button	Verify View button is accessible and clickable to user			
-			5	Check for the Submit Filing button 	Verify Submit Filing buttton is available and clicked			
-			6	Check Submit Files button is available and clickable	Verify Submit FIles button is enabled and Final Confirmation pages opens once user clicks the Submit Files button			
-			7	Check for the Create Submission and Download button on the Final Confirmation page	Verify Create Submission and Download button is enabled by default and clickable for user and download is successful			
-			8	Check Download Current Submission button is enabled	Verify Download Current Submission button is enabled and clickable for user			
-			9	Check ResultSubmission.zip folder with xml file is downloaded	Verify the downloaded ResltSubmission.zip folder contains .xml file and content matches 			
+Record (sample script):
+See `course2/TC/Test_Case_415053.spec.ts` for an automated implementation.
 
 import { test, expect } from '@playwright/test';
 
-// 415053 - Download Current Submission
-// Replaced noisy recording with a focused test that asserts the 'Download Current Submission' button
-// triggers a ResultSubmission ZIP download whose filename matches the expected pattern.
-
-test('415053 - Download Current Submission downloads ResultSubmission.zip', async ({ page }) => {
-  const jobRow = /Testing job|99 submission proof to be/; // parameterize in fixtures
-
-  // Navigate to Deals home (login assumed to be handled externally)
+test('Verify the result for the Download Current Submission button', async ({ page }) => {
+  // 1. Navigate to ABS-EE Deal Home (assuming login is handled separately)
   await page.goto('https://13f-qa.azurewebsites.net/deals');
   await page.getByRole('button', { name: 'ABS-EE Deal Home' }).click();
-  await expect(page.getByRole('heading', { name: 'ABS-EE Deal Home' })).toBeVisible();
 
-  // Open the target deal and navigate to Final Confirmation
-  await page.getByRole('row', { name: jobRow }).getByRole('link').click();
+  // 2. & 3. Locate and open target deal
+  const dealRow = page.getByRole('row', { name: /99 submission proof to be/ });
+  await expect(dealRow).toBeVisible();
+  await dealRow.getByRole('link', { name: 'View' }).click();
+
+  // 4. & 5. Navigate to Final Confirmation
   await page.getByRole('link', { name: 'Submit Filing' }).click();
   await page.getByRole('link', { name: 'Submit Files' }).click();
-  await expect(page.getByRole('heading', { name: 'Final Confirmation' })).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole('heading', { name: 'Final Confirmation' })).toBeVisible({ timeout: 30000 });
 
-  // Ensure Download Current Submission is available and triggers a download
-  const downloadCurrentBtn = page.getByRole('button', { name: 'Download Current Submission' });
-  await expect(downloadCurrentBtn).toBeVisible();
-  await expect(downloadCurrentBtn).toBeEnabled();
+  // 6. & 7. Check buttons are available
+  await expect(page.getByRole('button', { name: 'Create Submission and Download' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Download Current Submission' })).toBeEnabled();
 
-  const downloadPromise = page.waitForEvent('download', { timeout: 60_000 });
-  await downloadCurrentBtn.click();
+  // 8. Click Download Current Submission and verify download
+  const downloadPromise = page.waitForEvent('download', { timeout: 60000 });
+  await page.getByRole('button', { name: 'Download Current Submission' }).click();
 
   const download = await downloadPromise;
   const filename = download.suggestedFilename();
   expect(filename).toMatch(/ResultSubmission.*\.zip/i);
-
-  // Optional: save and inspect zip contents in CI
-  // await download.saveAs(`downloads/${filename}`);
 });
 
 

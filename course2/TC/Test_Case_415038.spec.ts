@@ -1,6 +1,6 @@
 const { test, expect } = require('@playwright/test');
 // Import the JSON file you created
-const testData = require('./testData.json'); 
+const testData = require('../utility/test_data.json'); 
 
 test('415038 - Verify validation results for ABS-EE deal', async ({ page }) => {
   

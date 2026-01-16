@@ -9,7 +9,7 @@ test('415036 - Create and upload ABSEE deal', async ({ page }) => {
   const rowRegex = new RegExp(`${data.jobNumber} ${data.dealName} ${data.periodEnd}`);
 
   // ---------- 1. LOGIN (mandatory) ----------
-  await page.goto('https://13f-qa.azurewebsites.net/deals');
+  await page.goto('url');
   await page.getByRole('button', { name: 'Sign in with DFIN Account' }).click();
   await page.getByRole('textbox', { name: 'Email address' }).fill(process.env.TEST_USER_EMAIL || 'xxxx@email.com');
   await page.getByRole('button', { name: 'Continue' }).click();

@@ -1,5 +1,5 @@
 const { test, expect } = require('@playwright/test');
-const testData = require('./testData.json');
+const testData = require('../utility/test_data.json');
 
 // Verify Download PDF flow downloads a .pdf file
 test.setTimeout(180_000);

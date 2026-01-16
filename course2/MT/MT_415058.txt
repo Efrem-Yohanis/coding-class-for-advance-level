@@ -1,22 +1,36 @@
-1. test case name:
-Verify user able to clone ABSEE deal
-2. maual test:
-ID	Work Item Type	Title	Test Step	Step Action	Step Expected	Area Path	Assigned To	State
-415058	Test Case	Verify user able to clone ABSEE deal				
-			1	Shared steps 413501: Login into AB2 site				
-			2	Click on ABSEE Deal icon	Verify user navigates to the ABSEE Deal Home landing page			
-			3	Select the Company from the dropdown	Verify user is able to select values from the Company dropdown			
-			4	Click on the Create New Deal button	"Verify Filing Details dropdown opens and contains below fields  and buttons
-Job Number,Deal Name,Period End Date,Target Filing Date,Filing Type,ABS Scheme Type,Create,Clone,Cancel"			
-			5	Click on 'Clone'  button	Verify clone button is enables and user clicks successfully			
-			6	Check clone deal popup appears	"Verify clone deal popup is displayed with below fields
-Deals dropdown,Deal Name input field,Job Number input field"			
-			7	Select the Deals from the dropdown	Verify user selects the deal value from the dropdown			
-			8	Enter the Deal Name and Job Number details	Verify user enters deal name and job number and clicks on Yes button			
-			9	Check the cloned ABSEE deal is available in the list	Verify the cloned deal is available in the home deal table			
-			10	Check clone deal popup closes when user clicks No button	Verify popup closes successfully when No button is clicked			
+Test name
+415058	Test Case	Verify user able to clone ABSEE deal
 
-3. recored script:
+Manual test case - Steps and Expected Results
+
+Precondition: User is logged in (shared steps 413501) and has access to the ABS-EE Deal Home page.
+
+Clean, step-by-step procedure:
+1. Navigate to the ABS-EE Deal Home.
+   - Expected: User navigates to the ABS-EE Deal Home landing page.
+2. Select the Company from the dropdown.
+   - Expected: User is able to select values from the Company dropdown.
+3. Click the Create New Deal button.
+   - Expected: Filing Details form opens with fields: Job Number, Deal Name, Period End Date, Target Filing Date, Filing Type, ABS Schema Type, and buttons: Create, Clone, Cancel.
+4. Click the 'Clone' button.
+   - Expected: Clone button is enabled and user clicks successfully.
+5. Verify clone deal popup appears.
+   - Expected: Clone deal popup is displayed with fields: Deals dropdown, Deal Name input field, Job Number input field.
+6. Select a deal from the Deals dropdown.
+   - Expected: User selects the deal value from the dropdown.
+7. Enter the Deal Name and Job Number details.
+   - Expected: User enters deal name and job number and clicks on Yes button.
+8. Verify the cloned ABSEE deal is available in the list.
+   - Expected: The cloned deal is available in the home deal table.
+9. Test that clone deal popup closes when user clicks No button.
+   - Expected: Popup closes successfully when No button is clicked.
+
+Notes:
+- Ensure at least one existing deal is available for cloning.
+- Test both successful cloning and popup dismissal scenarios.
+
+Record (sample script):
+See `course2/TC/Test_Case_415058.spec.ts` for an automated implementation.
 
 import { test, expect } from '@playwright/test';
 

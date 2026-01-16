@@ -147,6 +147,28 @@
     "performValidation": true,
     "scheduleTime": "01/12/2026 09:22 PM"
   },
+  "415056": {
+    "jobNumber": "10",
+    "dealName": "Test filing test",
+    "periodEnd": "09-30-2024",
+    "schemaOption": 2,
+    "filerCIK": "0000990461",
+    "filerCCC": "2trains*",
+    "fileNumber": "002-12345",
+    "depositorCIK": "0000990600",
+    "sponsorCIK": "0000990458",
+    "assetClass": "Auto leases",
+    "uploadFiles": [
+      "./test-data/Aurora Lease 1November2025_1120_AutoLease.zip",
+      "./test-data/lease24babsee.htm",
+      "./test-data/lease24bex102.xml",
+      "./test-data/lease24bex103.xml"
+    ],
+    "performValidation": true,
+    "scheduleTime": "01/12/2026 09:22 PM",
+    "expectedAccessionPattern": "\\\\d{10}-\\\\d{2}-\\\\d{6}",
+    "expectedStatusMessage": "SiFi filing completed successfully. Status: Accepted"
+  },
   "415057": {
     "jobNumber": "10",
     "dealName": "Test filing test",
