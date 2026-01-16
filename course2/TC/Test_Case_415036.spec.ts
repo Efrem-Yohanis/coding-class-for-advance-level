@@ -72,3 +72,32 @@ await dealRow.getByRole('link', { name: /view/i }).click();
   await expect(page.getByText(/CompletedSuccessfully/i)).toBeVisible({ timeout: 120_000 });
   console.log('Test Completed Successfully!');
 });
+===================================================================
+
+
+  const FILE_PATH = './Resource/Aurora Lease 1November2025_1120_AutoLease.zip'; // Ensure this file exists locally
+
+
+
+====================================
+  Codegen
+
+  import { test, expect } from '@playwright/test';
+
+test('test', async ({ page }) => {
+  await page.getByRole('row', { name: '777 45456 01-12-2026 01-12-' }).getByRole('link').click();
+  await page.getByRole('button', { name: 'Upload' }).click();
+  await page.getByRole('button', { name: 'Upload' }).setInputFiles(['blast231absee_0311-1458.htm', 'blast231ex102.xml', 'blast231ex103.xml', 'd209919d10d.htm', 'd209919dex991.htm']);
+  await page.getByText('File upload queue').click();
+  await page.getByText('File upload queue').click();
+  await page.locator('div').filter({ hasText: 'File upload queue' }).nth(3).click();
+  await expect(page.locator('#page-content-wrapper')).toContainText('File Name');
+  await page.getByText('d209919d10d.htm').click();
+  await page.getByRole('columnheader', { name: 'Form Type' }).click();
+  await page.getByRole('columnheader', { name: 'Form Type' }).click();
+  await page.getByRole('columnheader', { name: 'Form Type' }).click();
+  await expect(page.locator('#page-content-wrapper')).toContainText('10-D');
+  await expect(page.locator('#page-content-wrapper')).toContainText('Execution Status');
+  await expect(page.locator('#page-content-wrapper')).toContainText('CompletedSuccessfully : Finished Upload ABSEE');
+});
+
