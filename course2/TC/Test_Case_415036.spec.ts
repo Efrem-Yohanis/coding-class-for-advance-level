@@ -1,4 +1,5 @@
 const { test, expect } = require('@playwright/test');
+  const path = require('path'); // Add this at the top of your file
 
 test.setTimeout(180_000);
 
@@ -13,7 +14,8 @@ test('415036 - Create and upload ABSEE deal', async ({ page }) => {
   const FILING_TYPE = 'ABS-EE'; 
   const FILE_PATH = './test-files/sample_absee.zip'; 
 
-  const rowRegex = new RegExp(`${JOB_NUMBER}.*${DEAL_NAME}`);
+  const FILE_PATH = path.join(__dirname, 'Resource', 'Aurora Lease 1November2025_1120_AutoLease.zip');
+
 
   // --- 1. NAVIGATION to website
   await page.goto('https://13f-qa.azurewebsites.net/');
@@ -101,3 +103,26 @@ test('test', async ({ page }) => {
   await expect(page.locator('#page-content-wrapper')).toContainText('CompletedSuccessfully : Finished Upload ABSEE');
 });
 
+
+====================================================================
+
+  const path = require('path'); // Add this at the top of your file
+
+// --- 1. SET THE PATH ---
+// __dirname is the folder where your test file lives.
+// This joins that folder with the 'Resource' subfolder and the zip file name.
+const FILE_PATH = path.join(__dirname, 'Resource', 'Aurora Lease 1November2025_1120_AutoLease.zip');
+
+// --- 5. UPLOAD FILE ---
+// We locate the upload button
+const uploadButton = page.getByRole('button', { name: 'Upload' });
+
+// We inject the file directly
+await uploadButton.setInputFiles(FILE_PATH);
+
+// --- 6. VERIFY STATUS ---
+await page.getByText('File upload queue').click();
+
+// Wait for the specific container to show success
+const statusContainer = page.locator('#page-content-wrapper');
+await expect(statusContainer).toContainText('CompletedSuccessfully', { timeout: 180000 });
