@@ -87,3 +87,25 @@ test('415036 - Create and upload ABSEE deal', async ({ page }) => {
   await expect(statusContainer).toContainText('CompletedSuccessfully', { timeout: 180000 });
  
 });
+
+
+
+===================
+  Running 1 test using 1 worker
+  1) [chromium] › tests\ABS-EE\absee-createandupload_415036.spec.ts:6:1 › 415036 - Create and upload ABSEE deal
+
+    Error: ENOENT: no such file or directory, stat 'C:\AB2 Playwright Project\tests\ABS-EE\Resource\Aurora Lease 1November2025_1120_AutoLease.zip'
+
+      78 |
+      79 |   // setInputFiles handles the OS file dialog automatically
+    > 80 |   await uploadButton.setInputFiles(FILE_PATH);
+         |   ^
+      81 |
+      82 |   // ---------- 6. VERIFY STATUS ----------
+      83 |   // await page.getByText('File upload queue').click();
+        at C:\AB2 Playwright Project\tests\ABS-EE\absee-createandupload_415036.spec.ts:80:3
+
+    Error Context: test-results\ABS-EE-absee-createanduplo-18a19-reate-and-upload-ABSEE-deal-chromium\error-context.md
+
+  1 failed
+    [chromium] › tests\ABS-EE\absee-createandupload_415036.spec.ts:6:1 › 415036 - Create and upload ABSEE deal
