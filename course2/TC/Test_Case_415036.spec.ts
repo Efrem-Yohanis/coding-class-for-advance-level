@@ -63,3 +63,86 @@ test('415036 - Create and upload ABSEE deal', async ({ page }) => {
   // Optionally assert uploaded file shows up in the UI
   await expect(page.getByText(/File upload queue|Uploaded/i)).toBeVisible({ timeout: 30_000 });
 });
+
+-------------------------------------------------------------------
+const { test, expect } = require('@playwright/test');
+
+test.setTimeout(180_000);
+
+test('415036 - Create and upload ABSEE deal (Hard-coded)', async ({ page }) => {
+  // --- HARD-CODED INPUT DATA ---
+  const JOB_NUMBER = 'JOB-12345';
+  const DEAL_NAME = 'Automation_Test_Deal_001';
+  const PERIOD_END = '2023-12-31';
+  const SCHEMA_TYPE = 'Industrial'; // Replace with your actual dropdown option text
+  const FILE_PATH = './test-files/sample_absee.zip'; // Ensure this file exists locally
+  
+  // Regex to find the row in the table later
+  const rowRegex = new RegExp(`${JOB_NUMBER}.*${DEAL_NAME}`);
+
+  // ---------- 1. LOGIN ----------
+  await page.goto('https://your-app-url.com'); // REPLCE WITH ACTUAL URL
+  
+  await page.getByRole('button', { name: 'Sign in with DFIN Account' }).click();
+  await page.getByRole('textbox', { name: 'Email address' }).fill('your-email@dfin.com');
+  await page.getByRole('button', { name: 'Continue' }).click();
+  await page.getByRole('textbox', { name: /Enter the password/i }).fill('YourPassword123!');
+  await page.getByRole('button', { name: 'Sign in' }).click();
+
+  // Handle MFA (Manual Intervention Pause)
+  const mfaOption = page.getByRole('button', { name: 'Approve a request on my Microsoft Authenticator app' });
+  if (await mfaOption.isVisible({ timeout: 5000 })) {
+    await mfaOption.click();
+    console.log('>>> Please approve MFA on your phone now...');
+    // Wait for the dashboard to load as proof MFA passed
+    await page.waitForURL('**/dashboard**', { timeout: 60000 });
+  }
+
+  const staySignedInNo = page.locator('#idBtn_Back');
+  if (await staySignedInNo.isVisible({ timeout: 5000 })) {
+    await staySignedInNo.click();
+  }
+
+  // ---------- 2. ABS-EE HOME & COMPANY SELECTION ----------
+  await page.getByRole('button', { name: 'ABS-EE Deal Home' }).click();
+  
+  // Selecting "Automation" from Company Dropdown (Manual Step 4)
+  await page.getByLabel(/Company/i).click();
+  await page.getByRole('option', { name: 'Automation' }).click();
+
+  // ---------- 3. CREATE NEW DEAL ----------
+  await page.getByRole('button', { name: 'Create New Deal' }).click();
+  await expect(page.getByText('Filings Details')).toBeVisible();
+
+  await page.getByRole('textbox', { name: 'Job Number' }).fill(JOB_NUMBER);
+  await page.getByRole('textbox', { name: 'Deal Name*' }).fill(DEAL_NAME);
+  await page.getByRole('textbox', { name: 'Period End Date*' }).fill(PERIOD_END);
+  
+  // Selecting the Schema Type dropdown
+  await page.getByLabel('ABS Schema Type*').selectOption({ label: SCHEMA_TYPE });
+  
+  await page.getByRole('button', { name: 'Create', exact: true }).click();
+
+  // ---------- 4. FIND DEAL IN TABLE & VIEW ----------
+  // We look for the row containing our hard-coded Job Number and Deal Name
+  const dealRow = page.getByRole('row', { name: rowRegex });
+  await expect(dealRow).toBeVisible({ timeout: 30_000 });
+  await dealRow.getByRole('link', { name: /view/i }).click();
+
+  // ---------- 5. UPLOAD FILE ----------
+  await expect(page.getByRole('heading', { name: /FILE UPLOAD DETAILS/i })).toBeVisible();
+
+  // Triggering the file picker
+  const fileChooserPromise = page.waitForEvent('filechooser');
+  await page.getByRole('button', { name: 'Upload' }).click();
+  const fileChooser = await fileChooserPromise;
+  await fileChooser.setFiles(FILE_PATH);
+
+  // ---------- 6. VERIFY STATUS ----------
+  // We check for the completion text. 
+  // If the UI doesn't auto-refresh, you might need to add: await page.reload();
+  const statusLocator = page.getByText(/CompletedSuccessfully/i);
+  await expect(statusLocator).toBeVisible({ timeout: 120_000 });
+  
+  console.log('Test Completed Successfully!');
+});

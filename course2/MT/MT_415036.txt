@@ -5,17 +5,22 @@ Manual test case - Steps and Expected Results
 Precondition: User is logged in (shared steps 413501) and has access to the ABS-EE Deal Home page.
 
 Steps:
-1. Click the ABSEE Deal icon to go to the ABS-EE Deal Home landing page.
+1. go to websit 
+2. login in 
+3. Click the ABSEE Deal icon to go to the ABS-EE Deal Home landing page.
    - Expected: ABS-EE Deal Home opens.
-2. Select the Company from the Company dropdown.
-   - Expected: The Company value is selected.
-3. Click the "Create New Deal" button.
+4. Select the Company from the Company dropdown.
+   - Expected: The Company value is selected. 
+    compan name: Automation
+5. Click the "Create New Deal" button.
    - Expected: The "Filings Details" form opens and contains: Job Number, Deal Name, Period End Date, Target Filing Date, Filing Type, ABS Schema Type, Create, Clone, Cancel.
-4. Fill in the Filing Details (Job Number, Deal Name, Period End Date, Target Filing Date, Filing Type, ABS Schema Type) and click "Create".
+6. Fill in the Filing Details (Job Number, Deal Name, Period End Date, Target Filing Date, Filing Type, ABS Schema Type) and click "Create".
    - Expected: The deal is created and appears in the home deal table.
-5. Locate the newly created deal in the list and click "View".
+
+7. Locate the newly created deal in the list and click "View". see must find newly create deila from list of the deilas in the table 
    - Expected: The deal row shows details and actions (View, Delete) and the ABSEE Deal details page opens.
-6. On the deal details page, click "Upload" and select an ABSEE input zip file.
+
+8. On the deal details page, click "Upload" and select an ABSEE input zip file.
    - Expected: Upload is accepted, the file appears in the upload queue, and the Execution Status shows completion (e.g., "CompletedSuccessfully").
 
 Notes:
