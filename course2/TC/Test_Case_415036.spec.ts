@@ -147,3 +147,34 @@ test('415036 - Create and upload ABSEE deal (Hard-coded)', async ({ page }) => {
   
   console.log('Test Completed Successfully!');
 });
+
+
+
+
+===============================================
+  import { test, expect } from '@playwright/test';
+
+test('test', async ({ page }) => {
+  await page.goto('https://13f-qa.azurewebsites.net/abs-deals');
+  await page.getByRole('button', { name: 'Companies' }).click();
+  await page.getByRole('button', { name: 'Create New Company' }).click();
+  await page.getByRole('textbox', { name: 'Name*' }).click();
+  await page.getByRole('textbox', { name: 'Name*' }).fill('xxxx');
+  await page.getByRole('textbox', { name: 'PGP Key Name' }).click();
+  await page.getByRole('textbox', { name: 'PGP Key Name' }).fill('xxx');
+  await page.getByRole('textbox', { name: 'Link to Notes' }).click();
+  await page.getByRole('textbox', { name: 'Link to Notes' }).fill('x');
+  await page.getByRole('button', { name: 'Create', exact: true }).click();
+  await page.getByRole('button', { name: 'ABS-EE Deal Home' }).click();
+  await page.getByRole('button', { name: 'Create New Deal' }).click();
+  await page.getByText('Filings Details').click();
+  await page.getByRole('textbox', { name: 'Job Number' }).click();
+  await page.getByText('Deal Name*').click();
+  await page.locator('div').filter({ hasText: /^Deal Name\*$/ }).click();
+  await page.getByText('Period End Date*').click();
+  await page.getByRole('textbox', { name: 'Period End Date*' }).click();
+  await page.getByText('Target Filing Date*').click();
+  await page.getByText('Filing Type*ABS-EEABS-EE/A10-').click();
+  await page.getByText('ABS Schema Type*').click();
+  await page.getByRole('button', { name: 'Create', exact: true }).click();
+});
