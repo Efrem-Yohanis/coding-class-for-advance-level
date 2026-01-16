@@ -224,3 +224,34 @@ test('test', async ({ page }) => {
   await page.getByText('Filing Type*').click();
    await page.getByText('ABS Schema Type*').click();
 });
+==============================================================
+// --- HARD-CODED INPUT DATA ---
+  const JOB_NUMBER = 'JOB-12345';
+  const DEAL_NAME = 'Automation_Test_Deal_001';
+  const PERIOD_END = '2023-12-31';
+  const TARGET_FILING_DATE = '2026-01-16';
+  const SCHEMA_TYPE = 'Auto Loan'; // Replace with your actual dropdown option text
+  const FILING_TYPE = 'ABS-EE'; // Replace with your actual dropdown option text
+  const FILE_PATH = './test-files/sample_absee.zip'; // Ensure this file exists locally
+
+
+  // ---------- 3. CREATE NEW DEAL ----------
+await page.getByRole('button', { name: 'Create New Deal' }).click();
+await expect(page.getByText('Filings Details')).toBeVisible();
+
+await page.getByRole('textbox', { name: 'Job Number' }).fill(JOB_NUMBER);
+await page.getByRole('textbox', { name: 'Deal Name*' }).fill(DEAL_NAME);
+await page.getByRole('textbox', { name: 'Period End Date*' }).fill(PERIOD_END);
+await page.getByRole('textbox', { name: 'Target Filing Date*' }).fill(TARGET_FILING_DATE);
+
+// --- Handle Filing Type Dropdown ---
+await page.getByLabel('Filing Type*').click(); // Opens the dropdown
+// Using getByRole('option') is best for ARIA-compliant dropdowns
+await page.getByRole('option', { name: FILING_TYPE }).click(); 
+
+// --- Handle ABS Schema Type Dropdown ---
+await page.getByLabel('ABS Schema Type*').click(); // Opens the dropdown
+await page.getByRole('option', { name: SCHEMA_TYPE }).click();
+
+// --- Finalize ---
+await page.getByRole('button', { name: 'Create', exact: true }).click();
