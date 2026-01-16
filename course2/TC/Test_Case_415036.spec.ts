@@ -184,4 +184,37 @@ test('test', async ({ page }) => {
   await page.getByText('Company', { exact: true }).click();
   await page.locator('#selectedCompany').selectOption('22');
 });
-  
+  ===================================
+    import { test, expect } from '@playwright/test';
+
+test('test', async ({ page }) => {
+  await page.goto('https://13f-qa.azurewebsites.net/');
+  await page.getByRole('button', { name: 'Sign in with DFIN Account' }).click();
+  await page.getByRole('textbox', { name: 'Email address' }).press('CapsLock');
+  await page.getByRole('textbox', { name: 'Email address' }).fill('A');
+  await page.getByRole('textbox', { name: 'Email address' }).press('CapsLock');
+  await page.getByRole('textbox', { name: 'Email address' }).fill('x*');
+  await page.getByRole('button', { name: 'Continue' }).click();
+  await page.getByRole('textbox', { name: 'Email address' }).fill('xxxx');
+  await page.getByRole('button', { name: 'Continue' }).click();
+  await page.locator('#i0118').press('CapsLock');
+  await page.getByRole('textbox', { name: 'Enter the password for' }).fill('A');
+  await page.getByRole('textbox', { name: 'Enter the password for' }).press('CapsLock');
+  await page.getByRole('textbox', { name: 'Enter the password for' }).fill('xxxxxx');
+  await page.getByRole('button', { name: 'Sign in' }).click();
+  await page.goto('https://13f-qa.azurewebsites.net/deals');
+  await page.getByRole('button', { name: 'ABS-EE Deal Home' }).click();
+  await page.locator('#selectedCompany').selectOption('22');
+  await page.getByRole('button', { name: 'Create New Deal' }).click();
+  await page.getByRole('textbox', { name: 'Job Number' }).click();
+  await page.getByRole('textbox', { name: 'Job Number' }).fill('7777');
+  await page.getByRole('textbox', { name: 'Deal Name*' }).click();
+  await page.getByRole('textbox', { name: 'Deal Name*' }).fill('wow');
+  await page.getByRole('textbox', { name: 'Period End Date*' }).click();
+  await page.getByRole('option', { name: 'Choose Friday, January 16th,' }).click();
+  await page.getByRole('textbox', { name: 'Target Filing Date*' }).click();
+  await page.getByRole('option', { name: 'Choose Friday, January 16th,' }).click();
+  await page.getByRole('button', { name: 'Create', exact: true }).click();
+  await page.getByRole('cell', { name: '7777' }).click();
+  await page.getByText('wow').click();
+});
