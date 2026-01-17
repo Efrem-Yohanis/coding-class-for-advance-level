@@ -77,3 +77,48 @@ Require stack:
   5 | const { loginToAB2 } = require('../utils/login');
   6 |
     at Object.<anonymous> (C:\AB2 Playwright Project\tests\ABS-EE\absee-createandupload-415036-final.spec.ts:3:16)
+
+======================================
+  PS C:\AB2 Playwright Project> npx playwright test ts.spec.ts --project=chromium --headed
+[dotenv@17.2.3] injecting env (0) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+Error: Cannot find module './utils/authUtils'
+Require stack:
+- C:\AB2 Playwright Project\tests\ABS-EE\13f-validateandvalidationresults.spec.ts
+- C:\AB2 Playwright Project\node_modules\playwright\lib\transform\transform.js
+- C:\AB2 Playwright Project\node_modules\playwright\lib\common\configLoader.js
+- C:\AB2 Playwright Project\node_modules\playwright\lib\program.js
+- C:\AB2 Playwright Project\node_modules\@playwright\test\cli.js
+
+   at ABS-EE\13f-validateandvalidationresults.spec.ts:2
+
+  1 | import { test, expect, Page, BrowserContext } from '@playwright/test';
+> 2 | import { loginToAB2 } from './utils/authUtils';
+    | ^
+  3 |
+  4 | test.describe('Validation Results & Download PDF – 13F Deal', () => {
+  5 |   let context: BrowserContext;
+    at Object.<anonymous> (C:\AB2 Playwright Project\tests\ABS-EE\13f-validateandvalidationresults.spec.ts:2:1)
+
+Error: Cannot find module '../utils/login'
+Require stack:
+- C:\AB2 Playwright Project\tests\ABS-EE\ts.spec.ts
+- C:\AB2 Playwright Project\node_modules\playwright\lib\transform\transform.js
+- C:\AB2 Playwright Project\node_modules\playwright\lib\common\configLoader.js
+- C:\AB2 Playwright Project\node_modules\playwright\lib\program.js
+- C:\AB2 Playwright Project\node_modules\@playwright\test\cli.js
+
+   at ABS-EE\ts.spec.ts:14
+
+  12 |
+  13 | // Utils from tests/utils
+> 14 | const { loginToAB2 } = require('../utils/login');
+     |                        ^
+  15 |
+  16 | test.setTimeout(180_000);
+  17 |
+    at Object.<anonymous> (C:\AB2 Playwright Project\tests\ABS-EE\ts.spec.ts:14:24)
+
+Error: No tests found.
+Make sure that arguments are regular expressions matching test files.
+You may need to escape symbols like "$" or "*" and quote the arguments.
+  
