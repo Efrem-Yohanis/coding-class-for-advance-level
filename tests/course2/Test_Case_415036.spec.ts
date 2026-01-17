@@ -1,43 +1,71 @@
 const { test, expect } = require('@playwright/test');
 const path = require('path');
-const dotenv = require('dotenv');
-const testData = require('../config/test-data.json');
-const { loginToAB2 } = require('../utils/login');
-
-// Load environment variables from .env file
-dotenv.config({ path: path.resolve(__dirname, '../config/.env') });
+ import fs from 'fs';
 test.setTimeout(180_000);
 
 test('415036 - Create and upload ABSEE deal', async ({ page }) => {
-  const data = testData['415036'];
-  const FILE_PATH = path.resolve(__dirname, '../../resources', data.filePath);
+  // --- HARD-CODED INPUT DATA ---
+  const COMPANY_NAME = 'Automation';
+  const JOB_NUMBER = 'JOB-12345';
+  const DEAL_NAME = 'Automation_Test_Deal_001';
+  const PERIOD_END = '2023-12-31';
+  const TARGET_FILING_DATE = '2026-01-16';
+  const SCHEMA_TYPE = 'Auto Loan';
+  const FILING_TYPE = 'ABS-EE';
+  
+  // Joins current directory + Resource folder + filename
+const FILE_PATH = path.resolve(__dirname, '..', 'Resource', 'Blast1-UATDecember2025_1229.zip');
 
   // ---------- 1. LOGIN ----------
-  await loginToAB2(page);
+  await page.goto("https://13f-qa.azurewebsites.net/");
+  
+  await page.getByRole('button', { name: 'Sign in with DFIN Account' }).click();
+  await page.getByRole('textbox', { name: 'Email address' }).fill("biniyam.a.gebeyehu@dfinsolutions.com");
+  await page.getByRole('button', { name: 'Continue' }).click();
+  await page.getByRole('textbox', { name: /Enter the password/i }).fill("Alem123123*");
+  await page.getByRole('button', { name: 'Sign in' }).click();
+
+  // Handle MFA
+  const mfaOption = page.getByRole('button', { name: 'Approve a request on my Microsoft Authenticator app' });
+  try {
+    if (await mfaOption.isVisible({ timeout: 5000 })) {
+      await mfaOption.click();
+      console.log('>>> Please approve MFA on your phone now...');
+      // Wait for navigation to dashboard as proof MFA is done
+      await page.waitForURL('**/deals**', { timeout: 60000 });
+    }
+  } catch (e) {
+    console.log('MFA screen did not appear, proceeding...');
+  }
+
+  const staySignedInNo = page.locator('#idBtn_Back');
+  if (await staySignedInNo.isVisible({ timeout: 5000 })) {
+    await staySignedInNo.click();
+  }
 
   // ---------- 2. ABS-EE HOME & COMPANY SELECTION ----------
   await page.getByRole('button', { name: 'ABS-EE Deal Home' }).click();
   
   // Select Company from standard <select>
-  await page.locator('#selectedCompany').selectOption({ label: data.companyName });
+  await page.locator('#selectedCompany').selectOption({ label: COMPANY_NAME });
 
   // ---------- 3. CREATE NEW DEAL ----------
   await page.getByRole('button', { name: 'Create New Deal' }).click();
   await expect(page.getByText('Filings Details')).toBeVisible();
 
-  await page.getByRole('textbox', { name: 'Job Number' }).fill(data.jobNumber);
-  await page.getByRole('textbox', { name: 'Deal Name*' }).fill(data.dealName);
-  await page.getByRole('textbox', { name: 'Period End Date*' }).fill(data.periodEnd);
-  await page.getByRole('textbox', { name: 'Target Filing Date*' }).fill(data.targetFilingDate);
+  await page.getByRole('textbox', { name: 'Job Number' }).fill(JOB_NUMBER);
+  await page.getByRole('textbox', { name: 'Deal Name*' }).fill(DEAL_NAME);
+  await page.getByRole('textbox', { name: 'Period End Date*' }).fill(PERIOD_END);
+  await page.getByRole('textbox', { name: 'Target Filing Date*' }).fill(TARGET_FILING_DATE);
 
   // Use IDs from your HTML for standard select elements
-  await page.locator('#type').selectOption({ label: data.filingType });
-  await page.locator('#absSchema').selectOption({ label: data.schemaType });
+  await page.locator('#type').selectOption({ label: FILING_TYPE });
+  await page.locator('#absSchema').selectOption({ label: SCHEMA_TYPE });
 
   await page.getByRole('button', { name: 'Create', exact: true }).click();
 
   // ---------- 4. FIND DEAL IN TABLE & VIEW ----------
-  const rowRegex = new RegExp(data.dealName, 'i'); 
+  const rowRegex = new RegExp(DEAL_NAME, 'i'); 
   const dealRow = page.getByRole('row', { name: rowRegex });
   
   // Wait for the specific row to appear in the dashboard table
@@ -52,73 +80,10 @@ test('415036 - Create and upload ABSEE deal', async ({ page }) => {
   await page.locator('input[type="file"]').setInputFiles(FILE_PATH);
 
   // ---------- 6. VERIFY STATUS ----------
+  // await page.getByText('File upload queue').click();
+
   const statusContainer = page.locator('#page-content-wrapper');
   // Ensuring we see the "CompletedSuccessfully" message
   await expect(statusContainer).toContainText('Finished Upload ABSEE', { timeout: 180000 });
  
 });
-======================
-PS C:\AB2 Playwright Project> npx playwright test "absee-createandupload-415036-final.spec.ts" --project=chromium --headed
-Error: Cannot find module 'dotenv'
-Require stack:
-- C:\AB2 Playwright Project\tests\ABS-EE\absee-createandupload-415036-final.spec.ts
-- C:\AB2 Playwright Project\node_modules\playwright\lib\transform\transform.js
-- C:\AB2 Playwright Project\node_modules\playwright\lib\common\configLoader.js
-- C:\AB2 Playwright Project\node_modules\playwright\lib\program.js
-- C:\AB2 Playwright Project\node_modules\@playwright\test\cli.js
-
-   at ABS-EE\absee-createandupload-415036-final.spec.ts:3
-
-  1 | const { test, expect } = require('@playwright/test');
-  2 | const path = require('path');
-> 3 | const dotenv = require('dotenv');
-    |                ^
-  4 | const testData = require('../config/test-data.json');
-  5 | const { loginToAB2 } = require('../utils/login');
-  6 |
-    at Object.<anonymous> (C:\AB2 Playwright Project\tests\ABS-EE\absee-createandupload-415036-final.spec.ts:3:16)
-
-======================================
-  PS C:\AB2 Playwright Project> npx playwright test ts.spec.ts --project=chromium --headed
-[dotenv@17.2.3] injecting env (0) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
-Error: Cannot find module './utils/authUtils'
-Require stack:
-- C:\AB2 Playwright Project\tests\ABS-EE\13f-validateandvalidationresults.spec.ts
-- C:\AB2 Playwright Project\node_modules\playwright\lib\transform\transform.js
-- C:\AB2 Playwright Project\node_modules\playwright\lib\common\configLoader.js
-- C:\AB2 Playwright Project\node_modules\playwright\lib\program.js
-- C:\AB2 Playwright Project\node_modules\@playwright\test\cli.js
-
-   at ABS-EE\13f-validateandvalidationresults.spec.ts:2
-
-  1 | import { test, expect, Page, BrowserContext } from '@playwright/test';
-> 2 | import { loginToAB2 } from './utils/authUtils';
-    | ^
-  3 |
-  4 | test.describe('Validation Results & Download PDF – 13F Deal', () => {
-  5 |   let context: BrowserContext;
-    at Object.<anonymous> (C:\AB2 Playwright Project\tests\ABS-EE\13f-validateandvalidationresults.spec.ts:2:1)
-
-Error: Cannot find module '../utils/login'
-Require stack:
-- C:\AB2 Playwright Project\tests\ABS-EE\ts.spec.ts
-- C:\AB2 Playwright Project\node_modules\playwright\lib\transform\transform.js
-- C:\AB2 Playwright Project\node_modules\playwright\lib\common\configLoader.js
-- C:\AB2 Playwright Project\node_modules\playwright\lib\program.js
-- C:\AB2 Playwright Project\node_modules\@playwright\test\cli.js
-
-   at ABS-EE\ts.spec.ts:14
-
-  12 |
-  13 | // Utils from tests/utils
-> 14 | const { loginToAB2 } = require('../utils/login');
-     |                        ^
-  15 |
-  16 | test.setTimeout(180_000);
-  17 |
-    at Object.<anonymous> (C:\AB2 Playwright Project\tests\ABS-EE\ts.spec.ts:14:24)
-
-Error: No tests found.
-Make sure that arguments are regular expressions matching test files.
-You may need to escape symbols like "$" or "*" and quote the arguments.
-  
