@@ -1,10 +1,14 @@
-const { test, expect } = require('@playwright/test');
-const path = require('path');
- import fs from 'fs';
-test.setTimeout(180_000);
+import { test, expect } from '@playwright/test';
+import { loginToAB2 } from '../../utils/login';
+import path from 'path';
 
 test('415036 - Create and upload ABSEE deal', async ({ page }) => {
-  // --- HARD-CODED INPUT DATA ---
+  const FILE_PATH = path.resolve(__dirname, '..', '..', 'Resource', 'Blast1-UATDecember2025_1229.zip');
+
+  // --- LOGIN ---
+  await loginToAB2(page);
+
+  // --- Continue with ABS-EE test ---
   const COMPANY_NAME = 'Automation';
   const JOB_NUMBER = 'JOB-12345';
   const DEAL_NAME = 'Automation_Test_Deal_001';
@@ -12,76 +16,25 @@ test('415036 - Create and upload ABSEE deal', async ({ page }) => {
   const TARGET_FILING_DATE = '2026-01-16';
   const SCHEMA_TYPE = 'Auto Loan';
   const FILING_TYPE = 'ABS-EE';
-  
-  const FILE_PATH = path.resolve(__dirname,'..','..','Resource','Blast1-UATDecember2025_1229.zip');
-  // ---------- 1. LOGIN ----------
-  await page.goto("https://13f-qa.azurewebsites.net/");
-  
-  await page.getByRole('button', { name: 'Sign in with DFIN Account' }).click();
-  await page.getByRole('textbox', { name: 'Email address' }).fill("biniyam.a.gebeyehu@dfinsolutions.com");
-  await page.getByRole('button', { name: 'Continue' }).click();
-  await page.getByRole('textbox', { name: /Enter the password/i }).fill("Alem123123*");
-  await page.getByRole('button', { name: 'Sign in' }).click();
 
-  // Handle MFA
-  const mfaOption = page.getByRole('button', { name: 'Approve a request on my Microsoft Authenticator app' });
-  try {
-    if (await mfaOption.isVisible({ timeout: 5000 })) {
-      await mfaOption.click();
-      console.log('>>> Please approve MFA on your phone now...');
-      // Wait for navigation to dashboard as proof MFA is done
-      await page.waitForURL('**/deals**', { timeout: 60000 });
-    }
-  } catch (e) {
-    console.log('MFA screen did not appear, proceeding...');
-  }
-
-  const staySignedInNo = page.locator('#idBtn_Back');
-  if (await staySignedInNo.isVisible({ timeout: 5000 })) {
-    await staySignedInNo.click();
-  }
-
-  // ---------- 2. ABS-EE HOME & COMPANY SELECTION ----------
   await page.getByRole('button', { name: 'ABS-EE Deal Home' }).click();
-  
-  // Select Company from standard <select>
   await page.locator('#selectedCompany').selectOption({ label: COMPANY_NAME });
-
-  // ---------- 3. CREATE NEW DEAL ----------
   await page.getByRole('button', { name: 'Create New Deal' }).click();
-  await expect(page.getByText('Filings Details')).toBeVisible();
 
   await page.getByRole('textbox', { name: 'Job Number' }).fill(JOB_NUMBER);
   await page.getByRole('textbox', { name: 'Deal Name*' }).fill(DEAL_NAME);
   await page.getByRole('textbox', { name: 'Period End Date*' }).fill(PERIOD_END);
   await page.getByRole('textbox', { name: 'Target Filing Date*' }).fill(TARGET_FILING_DATE);
 
-  // Use IDs from your HTML for standard select elements
   await page.locator('#type').selectOption({ label: FILING_TYPE });
   await page.locator('#absSchema').selectOption({ label: SCHEMA_TYPE });
 
   await page.getByRole('button', { name: 'Create', exact: true }).click();
 
-  // ---------- 4. FIND DEAL IN TABLE & VIEW ----------
-  const rowRegex = new RegExp(DEAL_NAME, 'i'); 
-  const dealRow = page.getByRole('row', { name: rowRegex });
-  
-  // Wait for the specific row to appear in the dashboard table
-  await expect(dealRow).toBeVisible({ timeout: 30000 });
-  await dealRow.getByRole('link', { name: /view/i }).click();
-
-  // ---------- 5. UPLOAD FILE ----------
-  const uploadButton = page.getByRole('button', { name: 'Upload' });
-  await expect(uploadButton).toBeVisible();
-  
-  // setInputFiles handles the OS file dialog automatically
+  // --- UPLOAD FILE ---
   await page.locator('input[type="file"]').setInputFiles(FILE_PATH);
 
-  // ---------- 6. VERIFY STATUS ----------
-  // await page.getByText('File upload queue').click();
-
+  // --- VERIFY STATUS ---
   const statusContainer = page.locator('#page-content-wrapper');
-  // Ensuring we see the "CompletedSuccessfully" message
-  await expect(statusContainer).toContainText('Finished Upload ABSEE', { timeout: 180000 });
- 
+  await expect(statusContainer).toContainText('Finished Upload ABSEE', { timeout: 180_000 });
 });
