@@ -47,6 +47,10 @@ test('415036 - Create and upload ABSEE deal', async ({ page }) => {
   await expect(uploadButton).toBeVisible();
   await page.locator('input[type="file"]').setInputFiles(FILE_PATH);
 
-  // --- VERIFY STATUS ---
+  // ---------- 6. VERIFY STATUS ----------
   const statusContainer = page.locator('#page-content-wrapper');
-  await expect(statusContainer).toContainText('Fini
+  // Ensuring we see the "CompletedSuccessfully" message
+  await expect(statusContainer).toContainText('Finished Upload ABSEE', { timeout: 180000 });
+ 
+});
+                                              
