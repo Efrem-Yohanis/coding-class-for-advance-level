@@ -57,4 +57,23 @@ test('415036 - Create and upload ABSEE deal', async ({ page }) => {
   await expect(statusContainer).toContainText('Finished Upload ABSEE', { timeout: 180000 });
  
 });
+======================
+PS C:\AB2 Playwright Project> npx playwright test "absee-createandupload-415036-final.spec.ts" --project=chromium --headed
+Error: Cannot find module 'dotenv'
+Require stack:
+- C:\AB2 Playwright Project\tests\ABS-EE\absee-createandupload-415036-final.spec.ts
+- C:\AB2 Playwright Project\node_modules\playwright\lib\transform\transform.js
+- C:\AB2 Playwright Project\node_modules\playwright\lib\common\configLoader.js
+- C:\AB2 Playwright Project\node_modules\playwright\lib\program.js
+- C:\AB2 Playwright Project\node_modules\@playwright\test\cli.js
 
+   at ABS-EE\absee-createandupload-415036-final.spec.ts:3
+
+  1 | const { test, expect } = require('@playwright/test');
+  2 | const path = require('path');
+> 3 | const dotenv = require('dotenv');
+    |                ^
+  4 | const testData = require('../config/test-data.json');
+  5 | const { loginToAB2 } = require('../utils/login');
+  6 |
+    at Object.<anonymous> (C:\AB2 Playwright Project\tests\ABS-EE\absee-createandupload-415036-final.spec.ts:3:16)
