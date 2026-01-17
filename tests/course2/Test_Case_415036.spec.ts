@@ -13,9 +13,7 @@ test('415036 - Create and upload ABSEE deal', async ({ page }) => {
   const SCHEMA_TYPE = 'Auto Loan';
   const FILING_TYPE = 'ABS-EE';
   
-  // Joins current directory + Resource folder + filename
-const FILE_PATH = path.resolve(__dirname, '..', 'Resource', 'Blast1-UATDecember2025_1229.zip');
-
+  const FILE_PATH = path.resolve(__dirname,'..','..','Resource','Blast1-UATDecember2025_1229.zip');
   // ---------- 1. LOGIN ----------
   await page.goto("https://13f-qa.azurewebsites.net/");
   
