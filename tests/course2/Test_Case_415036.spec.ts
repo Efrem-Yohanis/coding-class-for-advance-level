@@ -28,12 +28,18 @@ test('415036 - Create and upload ABSEE deal', async ({ page }) => {
   await page.getByRole('textbox', { name: 'Deal Name*' }).fill(dealData.dealName);
   await page.getByRole('textbox', { name: 'Period End Date*' }).fill(dealData.periodEnd);
   await page.getByRole('textbox', { name: 'Target Filing Date*' }).fill(dealData.targetFilingDate);
-
   await page.locator('#type').selectOption({ label: dealData.filingType });
   await page.locator('#absSchema').selectOption({ label: dealData.schemaType });
-
   await page.getByRole('button', { name: 'Create', exact: true }).click();
 
+  // ---------- FIND DEAL IN TABLE & VIEW ----------
+  const rowRegex = new RegExp(data.dealName, 'i'); 
+  const dealRow = page.getByRole('row', { name: rowRegex });
+  
+  // Wait for the specific row to appear in the dashboard table
+  await expect(dealRow).toBeVisible({ timeout: 30000 });
+  await dealRow.getByRole('link', { name: /view/i }).click();
+  
   // --- UPLOAD FILE ---
   await page.locator('input[type="file"]').setInputFiles(FILE_PATH);
 
