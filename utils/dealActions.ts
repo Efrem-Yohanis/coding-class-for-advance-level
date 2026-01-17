@@ -1,34 +1,52 @@
-import { Page, expect } from '@playwright/test';
+import { test, expect } from '@playwright/test';
+import { loginToAB2 } from '../../utils/login';
+import { deleteDealIfExists } from '../../utils/dealActions';
+import path from 'path';
+import fs from 'fs';
 
-/**
- * Checks for an existing deal by name and deletes it if found.
- * @param page The Playwright Page object
- * @param dealName The name of the deal to search for and delete
- */
-export async function deleteDealIfExists(page: Page, dealName: string): Promise<void> {
-  const dealNameRegex = new RegExp(dealName, 'i');
-  
-  // Locate the row containing the deal name
-  const existingDealRow = page.getByRole('row', { name: dealNameRegex });
+// Load test data from JSON
+const testDataPath = path.resolve(__dirname, '..', '..', 'config', 'test-data.json');
+const rawData = fs.readFileSync(testDataPath, 'utf-8');
+const testData = JSON.parse(rawData);
 
-  // count() returns the number of elements matching the locator
-  if (await existingDealRow.count() > 0) {
-    console.log(`Cleanup: Deal "${dealName}" found. Deleting...`);
+// Use the key for this specific test
+const dealData = testData['415036'];
 
-    // Prepare to handle the browser's native 'confirm' dialog
-    page.once('dialog', dialog => {
-      console.log(`Dialog message: ${dialog.message()}`);
-      dialog.accept();
-    });
+test('415036 - Create and upload ABSEE deal', async ({ page }) => {
+  // --- FILE PATH ---
+  const FILE_PATH = path.resolve(__dirname, '..', '..', 'Resource', dealData.filePath);
 
-    // Click delete inside the specific row
-    await existingDealRow.getByRole('button', { name: /delete/i }).click();
+  // --- LOGIN ---
+  await loginToAB2(page);
 
-    // Ensure the row is removed from the DOM before moving forward
-    await existingDealRow.waitFor({ state: 'detached', timeout: 10000 });
-    
-    console.log(`Cleanup: Deal "${dealName}" deleted successfully.`);
-  } else {
-    console.log(`Cleanup: No existing deal found for "${dealName}".`);
-  }
-}
+  // --- Navigate to ABS-EE HOME & select company ---
+  await page.getByRole('button', { name: 'ABS-EE Deal Home' }).click();
+  await page.locator('#selectedCompany').selectOption({ label: dealData.companyName });
+
+  // --- DELETE EXISTING DEAL IF ANY ---
+  await deleteDealIfExists(page, dealData.dealName);
+
+  // --- CREATE NEW DEAL ---
+  await page.getByRole('button', { name: 'Create New Deal' }).click();
+  await page.getByRole('textbox', { name: 'Job Number' }).fill(dealData.jobNumber);
+  await page.getByRole('textbox', { name: 'Deal Name*' }).fill(dealData.dealName);
+  await page.getByRole('textbox', { name: 'Period End Date*' }).fill(dealData.periodEnd);
+  await page.getByRole('textbox', { name: 'Target Filing Date*' }).fill(dealData.targetFilingDate);
+  await page.locator('#type').selectOption({ label: dealData.filingType });
+  await page.locator('#absSchema').selectOption({ label: dealData.schemaType });
+  await page.getByRole('button', { name: 'Create', exact: true }).click();
+
+  // --- FIND DEAL IN TABLE & VIEW ---
+  const rowRegex = new RegExp(dealData.dealName, 'i'); 
+  const dealRow = page.getByRole('row', { name: rowRegex });
+  await expect(dealRow).toBeVisible({ timeout: 30000 });
+  await dealRow.getByRole('link', { name: /view/i }).click();
+
+  // --- UPLOAD FILE ---
+  const uploadButton = page.getByRole('button', { name: 'Upload' });
+  await expect(uploadButton).toBeVisible();
+  await page.locator('input[type="file"]').setInputFiles(FILE_PATH);
+
+  // --- VERIFY STATUS ---
+  const statusContainer = page.locator('#page-content-wrapper');
+  await expect(statusContainer).toContainText('Fini
