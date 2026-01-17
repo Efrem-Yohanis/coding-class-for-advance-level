@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { loginToAB2 } from '../../utils/login';
+import { loginToAB2 } from '../../utils/dealAction';
 import path from 'path';
 
 test('415036 - Create and upload ABSEE deal', async ({ page }) => {
@@ -19,8 +20,8 @@ test('415036 - Create and upload ABSEE deal', async ({ page }) => {
 
   await page.getByRole('button', { name: 'ABS-EE Deal Home' }).click();
   await page.locator('#selectedCompany').selectOption({ label: COMPANY_NAME });
-  await page.getByRole('button', { name: 'Create New Deal' }).click();
 
+  await page.getByRole('button', { name: 'Create New Deal' }).click();
   await page.getByRole('textbox', { name: 'Job Number' }).fill(JOB_NUMBER);
   await page.getByRole('textbox', { name: 'Deal Name*' }).fill(DEAL_NAME);
   await page.getByRole('textbox', { name: 'Period End Date*' }).fill(PERIOD_END);
