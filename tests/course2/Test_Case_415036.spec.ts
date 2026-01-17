@@ -32,24 +32,18 @@ test('415036 - Create and upload ABSEE deal', async ({ page }) => {
   await page.locator('#absSchema').selectOption({ label: dealData.schemaType });
   await page.getByRole('button', { name: 'Create', exact: true }).click();
 
-  // ---------- FIND DEAL IN TABLE & VIEW ----------
-  const rowRegex = new RegExp(data.dealName, 'i'); 
+  // --- FIND DEAL IN TABLE & VIEW ---
+  const rowRegex = new RegExp(dealData.dealName, 'i'); 
   const dealRow = page.getByRole('row', { name: rowRegex });
-  
-  // Wait for the specific row to appear in the dashboard table
   await expect(dealRow).toBeVisible({ timeout: 30000 });
   await dealRow.getByRole('link', { name: /view/i }).click();
-  
-// ---------- 5. UPLOAD FILE ----------
+
+  // --- UPLOAD FILE ---
   const uploadButton = page.getByRole('button', { name: 'Upload' });
   await expect(uploadButton).toBeVisible();
-  
-  // setInputFiles handles the OS file dialog automatically
   await page.locator('input[type="file"]').setInputFiles(FILE_PATH);
 
-  // ---------- 6. VERIFY STATUS ----------
+  // --- VERIFY STATUS ---
   const statusContainer = page.locator('#page-content-wrapper');
-  // Ensuring we see the "CompletedSuccessfully" message
-  await expect(statusContainer).toContainText('Finished Upload ABSEE', { timeout: 180000 });
- 
+  await expect(statusContainer).toContainText('Finished Upload ABSEE', { timeout: 180_000 });
 });
