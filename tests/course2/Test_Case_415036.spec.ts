@@ -40,10 +40,16 @@ test('415036 - Create and upload ABSEE deal', async ({ page }) => {
   await expect(dealRow).toBeVisible({ timeout: 30000 });
   await dealRow.getByRole('link', { name: /view/i }).click();
   
-  // --- UPLOAD FILE ---
+// ---------- 5. UPLOAD FILE ----------
+  const uploadButton = page.getByRole('button', { name: 'Upload' });
+  await expect(uploadButton).toBeVisible();
+  
+  // setInputFiles handles the OS file dialog automatically
   await page.locator('input[type="file"]').setInputFiles(FILE_PATH);
 
-  // --- VERIFY STATUS ---
+  // ---------- 6. VERIFY STATUS ----------
   const statusContainer = page.locator('#page-content-wrapper');
-  await expect(statusContainer).toContainText('Finished Upload ABSEE', { timeout: 180_000 });
+  // Ensuring we see the "CompletedSuccessfully" message
+  await expect(statusContainer).toContainText('Finished Upload ABSEE', { timeout: 180000 });
+ 
 });
