@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { loginToAB2 } from '../../utils/login';
+import { deleteDealIfExists } from '../../utils/dealActions';
 import path from 'path';
 import fs from 'fs';
 
@@ -21,6 +22,9 @@ test('415036 - Create and upload ABSEE deal', async ({ page }) => {
   // --- Navigate to ABS-EE HOME & select company ---
   await page.getByRole('button', { name: 'ABS-EE Deal Home' }).click();
   await page.locator('#selectedCompany').selectOption({ label: dealData.companyName });
+
+  // --- DELETE EXISTING DEAL IF ANY ---
+  await deleteDealIfExists(page, dealData.dealName);
 
   // --- CREATE NEW DEAL ---
   await page.getByRole('button', { name: 'Create New Deal' }).click();
@@ -45,5 +49,4 @@ test('415036 - Create and upload ABSEE deal', async ({ page }) => {
 
   // --- VERIFY STATUS ---
   const statusContainer = page.locator('#page-content-wrapper');
-  await expect(statusContainer).toContainText('Finished Upload ABSEE', { timeout: 180_000 });
-});
+  await expect(statusContainer).toContainText('Fini
