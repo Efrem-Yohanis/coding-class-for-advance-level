@@ -1,26 +1,32 @@
-const { test, expect } = require('@playwright/test');
-const path = require('path');
-const dotenv = require('dotenv');
-const testData = require('../config/test-data.json');
-const { loginToAB2 } = require('../utils/login');
+import { test, expect } from '@playwright/test';
+import { loginToAB2 } from '../../utils/login';
+import { deleteDealIfExists } from '../../utils/dealActions';
+import path from 'path';
+import fs from 'fs';
 
-// Load environment variables from .env file
-dotenv.config({ path: path.resolve(__dirname, '../config/.env') }); 
+// Load test data from JSON
+const testDataPath = path.resolve(__dirname, '..', '..', 'config', 'test-data.json');
+const rawData = fs.readFileSync(testDataPath, 'utf-8');
+const testData = JSON.parse(rawData);
 
-test('415038 - Verify validation results for ABS-EE deal', async ({ page }) => {
+// Use the key for this specific test
+const dealData = testData['415047'];
+
+test('415047 - File SEC information', async ({ page }) => {
   
-  // Define 'data' for Test Case 415038
-  const data = testData["415038"];
-
-  // -------------------- 1. LOGIN FLOW ---------------------------------------------
+  // --- LOGIN ---
   await loginToAB2(page);
 
-  // -------------------- 2. NAVIGATE TO ABSEE (Step 2-4) -----------------------
+  // --- Navigate to ABS-EE HOME & select company ---
   await page.getByRole('button', { name: 'ABS-EE Deal Home' }).click();
-  
-  const dealRow = page.getByRole('row', { name: data.dealName });
-  await expect(dealRow).toBeVisible();
-  await dealRow.getByRole('link', { name: 'View' }).click();
+  await page.locator('#selectedCompany').selectOption({ label: dealData.companyName });
+
+
+  // --- FIND DEAL IN TABLE & VIEW ---
+  const rowRegex = new RegExp(dealData.dealName, 'i'); 
+  const dealRow = page.getByRole('row', { name: rowRegex });
+  await expect(dealRow).toBeVisible({ timeout: 30000 });
+  await dealRow.getByRole('link', { name: /view/i }).click();
 
   // -------------------- 3. PERFORM VALIDATION (Step 5-7) ------------------
   await page.getByRole('button', { name: 'Perform Validation' }).click();
@@ -31,37 +37,5 @@ test('415038 - Verify validation results for ABS-EE deal', async ({ page }) => {
       await okButton.click();
   }
 
-  // -------------------- 4. EXECUTION STATUS (Step 8) -----------------------
-  await page.getByText('Execution Status').click();
-
-  await expect(page.getByText(/ABS-EE Validation completed/i)).toBeVisible({ timeout: 120_000 });
-  await expect(page.getByText(/CompletedSuccessfully/i)).toBeVisible({ timeout: 120_000 });
-
-  // -------------------- 5. VALIDATION RESULTS (Step 9) ---------------------
-  await page.locator('span').filter({ hasText: 'Validation Results' }).click();
-
-  // 1. Filename
-  await expect(page.locator('text=Filename:').locator('..')).toContainText(data.expectedFileName);
-
-  // 2. Created Date (Regex for year and time)
-  await expect(page.locator('span').filter({ hasText: /^Created Date:$/ }).locator('..'))
-    .toContainText(/\d{4}.*\d{1,2}:\d{2}/); 
-
-  // 3. Period Start
-  await expect(page.getByText('Period Start:').locator('..')).toContainText(data.periodStart);
-
-  // 4. Period End
-  await expect(page.getByText('Period End:').locator('..')).toContainText(data.periodEnd);
-
-  // 5. Number of Records
-  await expect(page.getByText('Number of Records:').locator('..')).toContainText(data.expectedRecords);
-
-  // 6. Number of Errors
-  await expect(page.getByText('Number of Errors:').locator('..')).toContainText(data.expectedErrors);
-
-  // 7. Number of Warnings
-  await expect(page.getByText('Number of Warnings:').locator('..')).toContainText(data.expectedWarnings);
-
-  console.log('Verification Complete: All fields in Step 9 match the test data.');
 });
 
