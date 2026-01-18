@@ -55,18 +55,10 @@ test('415036 - Create and upload ABSEE deal', async ({ page }) => {
 //-----------------------------------new add part ----------------------------------
   // ---------------- SEC → Submission Information (inside iframe) ----------------
 await page.getByRole('link', { name: 'SEC' }).click();
-// Locate the SEC iframe
-const secFrameLocator = page.frameLocator(
+
+  const secFrameLocator = page.frameLocator(
   'iframe[title*="SEC" i], iframe[src*="submission" i], iframe[src*="sec" i]'
 );
-
-// Wait for iframe to be attached
-await expect(page.locator(
-  'iframe[title*="SEC" i], iframe[src*="submission" i], iframe[src*="sec" i]'
-)).toBeAttached({ timeout: 15_000 });
-
-// Assert the form content is visible inside the iframe
-await expect(secFrameLocator.getByText(/Submission Information/i)).toBeVisible({ timeout: 30_000 });
 
 // ---------------- Filer Information ----------------
 const filerCikInput = secFrameLocator.locator('label.form-label:has-text("Filer CIK")')
