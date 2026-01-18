@@ -10,24 +10,29 @@ const rawData = fs.readFileSync(testDataPath, 'utf-8');
 const testData = JSON.parse(rawData);
 
 // Use the key for this specific test
-const dealData = testData['415047'];
+const dealData = testData['415036'];
 
 test('415036 - Create and upload ABSEE deal', async ({ page }) => {
-  
-  // --- 1. LOGIN ---
+  // --- FILE PATH ---
+  const FILE_PATH = path.resolve(__dirname, '..', '..', 'Resource', dealData.filePath);
+
+  // --- LOGIN ---
   await loginToAB2(page);
 
-  // --- 2. Navigate to ABS-EE HOME & select company ---
+  // --- Navigate to ABS-EE HOME & select company ---
   await page.getByRole('button', { name: 'ABS-EE Deal Home' }).click();
   await page.locator('#selectedCompany').selectOption({ label: dealData.companyName });
 
-  // --- 3. FIND DEAL IN TABLE & VIEW ---
+
+  // --- FIND DEAL IN TABLE & VIEW ---
   const rowRegex = new RegExp(dealData.dealName, 'i'); 
   const dealRow = page.getByRole('row', { name: rowRegex });
   await expect(dealRow).toBeVisible({ timeout: 30000 });
   await dealRow.getByRole('link', { name: /view/i }).click();
 
-// ---------- 4. SEC → Submission Information ----------
+  // ---------------- SEC → Submission Information (inside iframe) ----------------
+
+// ---------- SEC → Submission Information ----------
 await page.getByRole('link', { name: /^SEC$/i }).click();
 
 // Choose context: either the SEC iframe (if present) or the main page
@@ -108,4 +113,3 @@ await ctx.getByRole('button', { name: /^Save$/i }).click();
 await expect(ctx.getByText(/Saved successfully/i)).toBeVisible({ timeout: 20_000 });
 await expect(ctx.getByText(/^Success$/i)).toBeVisible({ timeout: 20_000 });
 });
-
