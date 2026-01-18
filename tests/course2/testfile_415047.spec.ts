@@ -13,9 +13,7 @@ const testData = JSON.parse(rawData);
 const dealData = testData['415047'];
 
 test('415036 - Create and upload ABSEE deal', async ({ page }) => {
-  // --- FILE PATH ---
-  const FILE_PATH = path.resolve(__dirname, '..', '..', 'Resource', dealData.filePath);
-
+  
   // --- LOGIN ---
   await loginToAB2(page);
 
