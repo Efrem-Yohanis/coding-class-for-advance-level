@@ -28,8 +28,6 @@ test('415047 - File SEC information', async ({ page }) => {
   await expect(dealRow).toBeVisible({ timeout: 30000 });
   await dealRow.getByRole('link', { name: /view/i }).click();
 
-  // ---------------- SEC → Submission Information (inside iframe) ----------------
-
 // ---------- SEC → Submission Information ----------
 await page.getByRole('link', { name: /^SEC$/i }).click();
 
