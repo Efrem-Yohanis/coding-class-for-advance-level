@@ -61,50 +61,29 @@ await page.getByRole('link', { name: 'SEC' }).click();
 );
 
 // ---------------- Filer Information ----------------
-const filerCikInput = secFrameLocator.locator('label.form-label:has-text("Filer CIK")')
-  .locator('xpath=following-sibling::input[1]');
-await filerCikInput.fill(dealData.filerCIK);
-
-const filerCccInput = secFrameLocator.locator('label.form-label:has-text("Filer CCC")')
-  .locator('xpath=following-sibling::input[1]');
-await filerCccInput.fill(dealData.filerCCC);
-
-const absEeFileNumberInput = secFrameLocator.locator('label.form-label:has-text("ABS-EE File Number")')
-  .locator('xpath=following-sibling::input[1]');
-await absEeFileNumberInput.fill(dealData.absEeFileNumber);
+await secFrameLocator.getByLabel('Filer CIK*').fill(dealData.filerCIK);
+await secFrameLocator.getByLabel('Filer CCC*').fill(dealData.filerCCC);
+await secFrameLocator.getByLabel('ABS-EE File Number*').fill(dealData.absEeFileNumber);
 
 // ---------------- Entity CIKs ----------------
-const depositorCikInput = secFrameLocator.locator('label.form-label:has-text("Depositor CIK")')
-  .locator('xpath=following-sibling::input[1]');
-await depositorCikInput.fill(dealData.depositorCIK);
+await secFrameLocator.getByLabel('Depositor CIK*').fill(dealData.depositorCIK);
+await secFrameLocator.getByLabel('Sponsor CIK*').fill(dealData.sponsorCIK);
 
-const sponsorCikInput = secFrameLocator.locator('label.form-label:has-text("Sponsor CIK")')
-  .locator('xpath=following-sibling::input[1]');
-await sponsorCikInput.fill(dealData.sponsorCIK);
-
-// ---------------- Asset Class (dropdown) ----------------
+// ---------------- Asset Class ----------------
 const assetClassInput = secFrameLocator.locator('input[id^="react-select"][id$="-input"]');
 await assetClassInput.click();
 await assetClassInput.fill(dealData.assetClass);
 await assetClassInput.press('Enter');
 
 // ---------------- ABS-EE Period Dates ----------------
-const startPeriodInput = secFrameLocator.locator('label.form-label:has-text("ABS-EE Start Period")')
-  .locator('xpath=following::div[contains(@class, "react-datepicker__input-container")][1]/input[1]');
-await startPeriodInput.fill(dealData.absPeriodStart);
-
-const endPeriodInput = secFrameLocator.locator('label.form-label:has-text("ABS-EE End Period")')
-  .locator('xpath=following::div[contains(@class, "react-datepicker__input-container")][1]/input[1]');
-await endPeriodInput.fill(dealData.absPeriodEnd);
+await secFrameLocator.getByLabel('ABS-EE Start Period*').fill(dealData.absPeriodStart);
+await secFrameLocator.getByLabel('ABS-EE End Period*').fill(dealData.absPeriodEnd);
 
 // ---------------- Notification Email ----------------
-const emailInput = secFrameLocator.locator('label.form-label:has-text("Email Address")')
-  .first()
-  .locator('xpath=following-sibling::input[1]');
-await emailInput.fill(dealData.notificationEmail);
+await secFrameLocator.getByLabel('Email Address').fill(dealData.notificationEmail);
 
 // ---------------- Save Submission Info ----------------
-await secFrameLocator.getByRole('button', { name: /^Save$/i }).click();
+await secFrameLocator.getByRole('button', { name: 'Save' }).click();
 
 // ---------------- Assertions ----------------
 await expect(secFrameLocator.getByText('Saved successfully')).toBeVisible();
