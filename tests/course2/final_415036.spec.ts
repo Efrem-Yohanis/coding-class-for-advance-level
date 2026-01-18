@@ -140,22 +140,3 @@ await ctx.getByRole('button', { name: /^Save$/i }).click();
 await expect(ctx.getByText(/Saved successfully/i)).toBeVisible({ timeout: 20_000 });
 await expect(ctx.getByText(/^Success$/i)).toBeVisible({ timeout: 20_000 });
 });
-
-
-
-
-
- "415047": {
-          "companyName": "Automation",
-          "dealName": "Automation_Test_Deal_001",
-     "filerCIK": "0000990461",
-    "filerCCC": "2trains*",
-    "absEeFileNumber": "002-12345",
-    "depositorCIK": "0000990600",
-    "sponsorCIK": "0000990458",
-    "assetClass": "Auto loans",
-    "absPeriodStart": "02-01-2025",
-    "absPeriodEnd": "02-28-2025",
-    "notificationEmail": "biniyam.a.gebeyehu@dfinsolutions.com"
-  }
-
