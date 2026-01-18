@@ -37,5 +37,14 @@ test('415047 - File SEC information', async ({ page }) => {
       await okButton.click();
   }
 
+  
+  // -------------------- 4. EXECUTION STATUS (Step 8) -----------------------
+  await page.getByText('Execution Status').click();
+
+  await expect(page.getByText(/ABS-EE Validation completed/i)).toBeVisible({ timeout: 120_000 });
+  await expect(page.getByText(/CompletedSuccessfully/i)).toBeVisible({ timeout: 120_000 });
+
+  
+
 });
 
