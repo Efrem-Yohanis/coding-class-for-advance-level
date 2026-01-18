@@ -1,12 +1,24 @@
 {
   "415036": {
-    "companyName": "Automation",
-    "jobNumber": "JOB-12345",
-    "dealName": "Automation_Test_Deal_001",
-    "periodEnd": "2023-12-31",
-    "targetFilingDate": "2026-01-16",
-    "schemaType": "Auto Loan",
-    "filingType": "ABS-EE",
-    "filePath": "Blast1-UATDecember2025_1229.zip"
+    "filePath": "Blast1-UATDecember2025_1229.zip",
+    "companyName": "ABC Company",
+    "jobNumber": "415036",
+    "dealName": "ABSEE Deal 415036",
+    "periodEnd": "12-31-2025",
+    "targetFilingDate": "01-15-2026",
+    "filingType": "Initial Filing",
+    "schemaType": "ABS EE",
+
+    "secSubmission": {
+      "filerCIK": "0000990461",
+      "filerCCC": "2trains*",
+      "absEeFileNumber": "002-12345",
+      "depositorCIK": "0000990600",
+      "sponsorCIK": "0000990458",
+      "assetClass": "Auto loans",
+      "periodStart": "02-01-2025",
+      "periodEnd": "02-28-2025",
+      "notificationEmail": "biniyam.a.gebeyehu@dfinsolutions.com"
+    }
   }
 }
