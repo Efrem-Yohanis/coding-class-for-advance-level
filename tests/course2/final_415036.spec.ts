@@ -10,52 +10,26 @@ const rawData = fs.readFileSync(testDataPath, 'utf-8');
 const testData = JSON.parse(rawData);
 
 // Use the key for this specific test
-const dealData = testData['415036'];
+const dealData = testData['415047'];
 
 test('415036 - Create and upload ABSEE deal', async ({ page }) => {
   // --- FILE PATH ---
   const FILE_PATH = path.resolve(__dirname, '..', '..', 'Resource', dealData.filePath);
 
-  // --- LOGIN ---
+  // --- 1. LOGIN ---
   await loginToAB2(page);
 
-  // --- Navigate to ABS-EE HOME & select company ---
+  // --- 2. Navigate to ABS-EE HOME & select company ---
   await page.getByRole('button', { name: 'ABS-EE Deal Home' }).click();
   await page.locator('#selectedCompany').selectOption({ label: dealData.companyName });
 
-  // --- DELETE EXISTING DEAL IF ANY ---
-  await deleteDealIfExists(page, dealData.dealName);
-
-  // --- CREATE NEW DEAL ---
-  await page.getByRole('button', { name: 'Create New Deal' }).click();
-  await page.getByRole('textbox', { name: 'Job Number' }).fill(dealData.jobNumber);
-  await page.getByRole('textbox', { name: 'Deal Name*' }).fill(dealData.dealName);
-  await page.getByRole('textbox', { name: 'Period End Date*' }).fill(dealData.periodEnd);
-  await page.getByRole('textbox', { name: 'Target Filing Date*' }).fill(dealData.targetFilingDate);
-  await page.locator('#type').selectOption({ label: dealData.filingType });
-  await page.locator('#absSchema').selectOption({ label: dealData.schemaType });
-  await page.getByRole('button', { name: 'Create', exact: true }).click();
-
-  // --- FIND DEAL IN TABLE & VIEW ---
+  // --- 3. FIND DEAL IN TABLE & VIEW ---
   const rowRegex = new RegExp(dealData.dealName, 'i'); 
   const dealRow = page.getByRole('row', { name: rowRegex });
   await expect(dealRow).toBeVisible({ timeout: 30000 });
   await dealRow.getByRole('link', { name: /view/i }).click();
 
-  // --- UPLOAD FILE ---
-  const uploadButton = page.getByRole('button', { name: 'Upload' });
-  await expect(uploadButton).toBeVisible();
-  await page.locator('input[type="file"]').setInputFiles(FILE_PATH);
-
-   // ---------- 6. VERIFY STATUS ----------
-  const statusContainer = page.locator('#page-content-wrapper');
-  // Ensuring we see the "CompletedSuccessfully" message
-  await expect(statusContainer).toContainText('Finished Upload ABSEE', { timeout: 180000 });
-
-//-----------------------------------new add part ----------------------------------
-  // ---------------- SEC → Submission Information (inside iframe) ----------------
-
-// ---------- SEC → Submission Information ----------
+// ---------- 4. SEC → Submission Information ----------
 await page.getByRole('link', { name: /^SEC$/i }).click();
 
 // Choose context: either the SEC iframe (if present) or the main page
@@ -136,4 +110,22 @@ await ctx.getByRole('button', { name: /^Save$/i }).click();
 await expect(ctx.getByText(/Saved successfully/i)).toBeVisible({ timeout: 20_000 });
 await expect(ctx.getByText(/^Success$/i)).toBeVisible({ timeout: 20_000 });
 });
+
+
+
+
+
+ "415047": {
+          "companyName": "Automation",
+          "dealName": "Automation_Test_Deal_001",
+     "filerCIK": "0000990461",
+    "filerCCC": "2trains*",
+    "absEeFileNumber": "002-12345",
+    "depositorCIK": "0000990600",
+    "sponsorCIK": "0000990458",
+    "assetClass": "Auto loans",
+    "absPeriodStart": "02-01-2025",
+    "absPeriodEnd": "02-28-2025",
+    "notificationEmail": "biniyam.a.gebeyehu@dfinsolutions.com"
+  }
 
