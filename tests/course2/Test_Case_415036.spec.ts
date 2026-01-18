@@ -59,9 +59,6 @@ await page.getByRole('link', { name: 'SEC' }).click();
 await expect(page.getByText('Submission Information')).toBeVisible();
 await page.getByText('Submission Information').click();
 
-// Assert form loaded
-await expect(page.getByLabel('Filer CIK*')).toBeVisible();
-
 // ---------------- Filer Information ----------------
 await page.getByLabel('Filer CIK*').fill(dealData.filerCIK);
 await page.getByLabel('Filer CCC*').fill(dealData.filerCCC);
