@@ -10,7 +10,7 @@ const rawData = fs.readFileSync(testDataPath, 'utf-8');
 const testData = JSON.parse(rawData);
 
 // Use the key for this specific test
-const dealData = testData['415036'];
+const dealData = testData['415047'];
 
 test('415036 - Create and upload ABSEE deal', async ({ page }) => {
   // --- FILE PATH ---
