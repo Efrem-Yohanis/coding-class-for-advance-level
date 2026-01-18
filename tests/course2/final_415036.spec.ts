@@ -42,13 +42,6 @@ test('415036 - Create and upload ABSEE deal', async ({ page }) => {
   await expect(dealRow).toBeVisible({ timeout: 30000 });
   await dealRow.getByRole('link', { name: /view/i }).click();
 
-  
-  // --- 5. FIND DEAL IN TABLE & VIEW ---
-  const rowRegex = new RegExp(dealData.dealName, 'i'); 
-  const dealRow = page.getByRole('row', { name: rowRegex });
-  await expect(dealRow).toBeVisible({ timeout: 30000 });
-  await dealRow.getByRole('link', { name: /view/i }).click();
-
   // --- 6. UPLOAD FILE ---
   const uploadButton = page.getByRole('button', { name: 'Upload' });
   await expect(uploadButton).toBeVisible();
