@@ -16,17 +16,17 @@ test('415036 - Create and upload ABSEE deal', async ({ page }) => {
   // --- FILE PATH ---
   const FILE_PATH = path.resolve(__dirname, '..', '..', 'Resource', dealData.filePath);
 
-  // --- 1. LOGIN ---
+  // --- LOGIN ---
   await loginToAB2(page);
 
-  // --- 2. Navigate to ABS-EE HOME & select company ---
+  // --- Navigate to ABS-EE HOME & select company ---
   await page.getByRole('button', { name: 'ABS-EE Deal Home' }).click();
   await page.locator('#selectedCompany').selectOption({ label: dealData.companyName });
 
-  // --- 3. DELETE EXISTING DEAL IF ANY ---
+  // --- DELETE EXISTING DEAL IF ANY ---
   await deleteDealIfExists(page, dealData.dealName);
 
-  // --- 4. CREATE NEW DEAL ---
+  // --- CREATE NEW DEAL ---
   await page.getByRole('button', { name: 'Create New Deal' }).click();
   await page.getByRole('textbox', { name: 'Job Number' }).fill(dealData.jobNumber);
   await page.getByRole('textbox', { name: 'Deal Name*' }).fill(dealData.dealName);
@@ -36,23 +36,26 @@ test('415036 - Create and upload ABSEE deal', async ({ page }) => {
   await page.locator('#absSchema').selectOption({ label: dealData.schemaType });
   await page.getByRole('button', { name: 'Create', exact: true }).click();
 
-  // --- 3. FIND DEAL IN TABLE & VIEW ---
+  // --- FIND DEAL IN TABLE & VIEW ---
   const rowRegex = new RegExp(dealData.dealName, 'i'); 
   const dealRow = page.getByRole('row', { name: rowRegex });
   await expect(dealRow).toBeVisible({ timeout: 30000 });
   await dealRow.getByRole('link', { name: /view/i }).click();
 
-  // --- 6. UPLOAD FILE ---
+  // --- UPLOAD FILE ---
   const uploadButton = page.getByRole('button', { name: 'Upload' });
   await expect(uploadButton).toBeVisible();
   await page.locator('input[type="file"]').setInputFiles(FILE_PATH);
 
-  // ---------- 7. VERIFY STATUS ----------
+   // ---------- 6. VERIFY STATUS ----------
   const statusContainer = page.locator('#page-content-wrapper');
   // Ensuring we see the "CompletedSuccessfully" message
   await expect(statusContainer).toContainText('Finished Upload ABSEE', { timeout: 180000 });
- 
-// ---------- 4. SEC → Submission Information ----------
+
+//-----------------------------------new add part ----------------------------------
+  // ---------------- SEC → Submission Information (inside iframe) ----------------
+
+// ---------- SEC → Submission Information ----------
 await page.getByRole('link', { name: /^SEC$/i }).click();
 
 // Choose context: either the SEC iframe (if present) or the main page
