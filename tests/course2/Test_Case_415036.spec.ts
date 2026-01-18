@@ -90,4 +90,23 @@ await expect(secFrameLocator.getByText('Saved successfully')).toBeVisible();
 await expect(secFrameLocator.getByText('Success', { exact: true })).toBeVisible();
   
 });
+
+
+
+
+==================
+  Test timeout of 60000ms exceeded.
+Error: locator.fill: Test timeout of 60000ms exceeded.
+Call log:
+  - waiting for locator('iframe[title*="SEC" i], iframe[src*="submission" i], iframe[src*="sec" i]').contentFrame().getByLabel('Filer CIK*')
+
+
+  62 |
+  63 | // ---------------- Filer Information ----------------
+> 64 | await secFrameLocator.getByLabel('Filer CIK*').fill(dealData.filerCIK);
+     |                                                ^
+  65 | await secFrameLocator.getByLabel('Filer CCC*').fill(dealData.filerCCC);
+  66 | await secFrameLocator.getByLabel('ABS-EE File Number*').fill(dealData.absEeFileNumber);
+  67 |
+    at C:\AB2 Playwright Project\tests\ABS-EE\absee-createandupload_415036.spec.ts:64:48
              
